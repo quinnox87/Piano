@@ -24,7 +24,7 @@
         /* Nombres de notas (letras inferiores - Cifrado) */
         .abcjs-lyric {
             fill: #64748b;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
         }
 
@@ -99,7 +99,11 @@
                     <option value="minuet">Minueto en Sol (Bach/Petzold)</option>
                     <option value="scale_c">Escala de Do Mayor (Técnica)</option>
                     <option value="ode_joy">Oda a la Alegría (Beethoven)</option>
-                    <option value="gymnopedie">Gymnopédie No. 1 (Satie)</option>
+                    <option value="vals_1">Vals 1 (Alberto Martínez)</option>
+                    <option value="brahms_lullaby">Canción de Cuna (J. Brahms)</option>
+                    <option value="cancan">Can-Can (J. Offenbach)</option>
+                    <option value="mariana">Mariana (Bastien)</option>
+                    <option value="lavanda">Lavanda Azul (Bastien)</option>
                 </select>
             </div>
         </div>
@@ -121,7 +125,6 @@
                             <span id="fingering-icon">🖐️</span> <span id="fingering-text">DEDOS: ON</span>
                         </button>
 
-                        <!-- BOTÓN DE CIFRADO ACTUALIZADO -->
                         <button id="cipher-btn" class="btn-active px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm">
                             <span id="cipher-icon">🔤</span> <span id="cipher-text">CIFRADO: LATINO</span>
                         </button>
@@ -150,13 +153,11 @@
         </div>
         
         <div class="bg-slate-50 p-4 text-center border-t border-slate-100 text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-            Usa el botón de Cifrado para cambiar entre Do-Re-Mi o C-D-E
+            Práctica bimanual interactiva - Sistema de aprendizaje progresivo
         </div>
     </div>
 
     <script>
-        // --- BASE DE DATOS DE OBRAS ---
-        // Nota: Los lyrics (w:) se guardan en formato Latino como base para traducir dinámicamente
         const SONGS = {
             'minuet': {
                 title: "Minueto en Sol Mayor",
@@ -175,11 +176,7 @@ V:2 bass name="M.I."
 [V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |
 w: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |
 [V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |
-w: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |
-[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !2!F2 !3!G!4!A !5!B!1!G | !5!A6 |
-w: Do Re Do Si La | Si Do Si La Sol | Fa# Sol La Si Sol | La |
-[V:2] !5!A,2 !4!B,2 !3!C2 | !5!G,2 !4!A,2 !3!B,2 | !5!D,2 !4!E,2 !2!F,2 | !5!D,6 |
-w: La Si Do | Sol La Si | Re Mi Fa# | Re |`
+w: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |`
             },
             'scale_c': {
                 title: "Escala de Do Mayor",
@@ -200,6 +197,52 @@ w: Do Re Mi Fa | Sol La Si Do | Do Si La Sol | Fa Mi Re Do |
 [V:2] !5!C, !4!D, !3!E, !2!F, | !1!G, !3!A, !2!B, !1!C | !1!C !2!B,, !3!A,, !1!G,, | !2!F,, !3!E,, !4!D,, !5!C,, |
 w: Do Re Mi Fa | Sol La Si Do | Do Si La Sol | Fa Mi Re Do |`
             },
+            'brahms_lullaby': {
+                title: "Canción de Cuna",
+                subtitle: "Johannes Brahms (Simplificado)",
+                tempo: 80,
+                beatsPerBar: 3,
+                abc: `
+X:1
+T:
+M:3/4
+L:1/4
+Q:1/4=80
+K:C
+V:1 treble name="M.D."
+V:2 bass name="M.I."
+[V:1] !3!E E !5!G | !3!E E !5!G | !3!E !5!G !5!c | !4!B2 !2!A |
+w: Mi Mi Sol | Mi Mi Sol | Mi Sol Do | Si La |
+[V:2] !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] |
+w: Do Mi-Sol Mi-Sol | Do Mi-Sol Mi-Sol | Do Mi-Sol Mi-Sol | Sol Re-Fa Re-Fa |
+[V:1] !2!D !3!E !4!F | !2!D !3!E !4!F | !2!D !4!F !4!B | !3!A2 !5!G |
+w: Re Mi Fa | Re Mi Fa | Re Fa Si | La Sol |
+[V:2] !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] |
+w: Sol Re-Fa Re-Fa | Sol Re-Fa Re-Fa | Sol Re-Fa Re-Fa | Do Mi-Sol Mi-Sol |`
+            },
+            'cancan': {
+                title: "Can-Can",
+                subtitle: "Jacques Offenbach (Orfeo en los Infiernos)",
+                tempo: 126,
+                beatsPerBar: 4,
+                abc: `
+X:1
+T:
+M:4/4
+L:1/4
+Q:1/4=126
+K:C
+V:1 treble name="M.D."
+V:2 bass name="M.I."
+[V:1] !1!C !1!C !2!D !2!D | !3!E !3!E !4!F !4!F | !5!G !5!G !5!G !5!G | !3!E2 !1!C2 |
+w: Do Do Re Re | Mi Mi Fa Fa | Sol Sol Sol Sol | Mi Do |
+[V:2] !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, |
+w: Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol |
+[V:1] !2!D !2!D !3!E !3!E | !4!F !4!F !5!G !5!G | !2!D !3!E !4!F !2!D | !1!C2 z2 |
+w: Re Re Mi Mi | Fa Fa Sol Sol | Re Mi Fa Re | Do |
+[V:2] !1!G,, !4!D, !1!G,, !4!D, | !1!G,, !4!D, !1!G,, !4!D, | !1!G,, !4!D, !1!G,, !4!D, | !5!C,2 z2 |
+w: Sol Re Sol Re | Sol Re Sol Re | Sol Re Sol Re | Do |`
+            },
             'ode_joy': {
                 title: "Oda a la Alegría",
                 subtitle: "Ludwig van Beethoven (Novena Sinfonía)",
@@ -217,69 +260,95 @@ V:2 bass name="M.I."
 [V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |
 w: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |
 [V:2] !1!G,2 !2!B,2 | !1!D2 !1!G,2 | !2!E,2 !3!C2 | !1!D,4 |
-w: Sol Si | Re Sol | Mi Do | Re |
-[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |
-w: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |
-[V:2] !1!G,2 !2!B,2 | !1!D2 !1!G,2 | !2!E,2 !1!D,2 | !1!G,,4 |
-w: Sol Si | Re Sol | Mi Re | Sol |`
+w: Sol Si | Re Sol | Mi Do | Re |`
             },
-            'gymnopedie': {
-                title: "Gymnopédie No. 1",
-                subtitle: "Erik Satie (Versión de estudio)",
-                tempo: 72,
+            'vals_1': {
+                title: "Vals 1",
+                subtitle: "Alberto Martínez - Nivel Principiante",
+                tempo: 100,
                 beatsPerBar: 3,
                 abc: `
 X:1
 T:
 M:3/4
 L:1/4
-Q:1/4=72
-K:D
+Q:1/4=100
+K:G
 V:1 treble name="M.D."
 V:2 bass name="M.I."
-[V:1] z3 | z3 | !5!^f3 | !4!e3 | !5!^f3 | !4!e3 | !5!^f2 !4!e | !2!d2 !1!B |
-w: | | Fa# | Mi | Fa# | Mi | Fa# Mi | Re Si |
-[V:2] !5!G,,3 | !2!B, D ^F | !5!D,,3 | !3!A, ^C E | !5!G,,3 | !2!B, D ^F | !5!D,,3 | !3!A, ^C E |
-w: Sol Si Re Fa# | Re La Do# Mi | Sol Si Re Fa# | Re La Do# Mi |`
+[V:1] !1!G !3!B !5!d | !5!d2 !5!d | !4!c !2!A !4!c | !3!B2 !1!G |
+w: Sol Si Re | Re Re | Do La Do | Si Sol |
+[V:2] !5!G,, [G,B,D] [G,B,D] | !5!G,, [G,B,D] [G,B,D] | !2!F,, [F,A,C] [F,A,C] | !5!G,, [G,B,D] [G,B,D] |
+w: Sol Sol-Si-Re Sol-Si-Re | Sol Sol-Si-Re Sol-Si-Re | Fa Fa-La-Do Fa-La-Do | Sol Sol-Si-Re Sol-Si-Re |`
+            },
+            'mariana': {
+                title: "Mariana",
+                subtitle: "Bastien Adultos - Nivel 1",
+                tempo: 100,
+                beatsPerBar: 4,
+                abc: `
+X:1
+T:
+M:4/4
+L:1/4
+Q:1/4=100
+K:C
+V:1 treble name="M.D."
+V:2 bass name="M.I."
+[V:1] !3!E E !5!G G | !4!F F !3!E E | !2!D D !5!G G | !1!C4 |
+w: Mi Mi Sol Sol | Fa Fa Mi Mi | Re Re Sol Sol | Do |
+[V:2] [C,2E,2G,2] [C,2E,2G,2] | [C,2E,2G,2] [C,2E,2G,2] | [B,,2D,2G,2] [B,,2D,2G,2] | [C,4E,4G,4] |
+w: Do-Mi-Sol | Do-Mi-Sol | Si-Re-Sol | Do-Mi-Sol |`
+            },
+            'lavanda': {
+                title: "Lavanda Azul",
+                subtitle: "Bastien Adultos - Nivel 1",
+                tempo: 90,
+                beatsPerBar: 3,
+                abc: `
+X:1
+T:
+M:3/4
+L:1/4
+Q:1/4=90
+K:C
+V:1 treble name="M.D."
+V:2 bass name="M.I."
+[V:1] !5!G G G | !5!G !4!F !3!E | !2!D !3!E !4!F | !3!E2 !1!C |
+w: Sol Sol Sol | Sol Fa Mi | Re Mi Fa | Mi Do |
+[V:2] !5!C,3 | !5!C,3 | !1!G,3 | !5!C,2 !5!C, |
+w: Do | Do | Sol | Do Do |`
             }
         };
 
-        // --- MAPAS DE TRADUCCIÓN ---
-        const latToAng = {
-            "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B"
-        };
-
-        // --- ESTADO GLOBAL ---
-        let currentSongId = 'minuet';
-        let tempo = SONGS['minuet'].tempo;
-        let fingersActive = true;
-        let cipherMode = 'lat'; // 'off', 'lat', 'ang'
-
-        let visualObj, synthControl, timingCallbacks;
-        let isPlaying = false, isMetroRunning = false;
-        let audioCtx = null, nextNoteTime = 0.0, currentBeat = 0, timerID = null;
-        
+        const latToAng = { "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B" };
+        let currentSongId = 'minuet', tempo = 110, fingersActive = true, cipherMode = 'lat';
+        let visualObj, synthControl, timingCallbacks, audioCtx = null, nextNoteTime = 0.0, currentBeat = 0, timerID = null;
         const noteNames = {
             "lat": ["Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"],
             "ang": ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
         };
 
-        // --- INICIALIZACIÓN ---
         window.onload = () => {
             loadSong('minuet');
-            document.getElementById('song-selector').addEventListener('change', (e) => loadSong(e.target.value));
+            document.getElementById('song-selector').onchange = (e) => loadSong(e.target.value);
+            document.getElementById('tempo-minus').onclick = () => updateTempo(-10);
+            document.getElementById('tempo-plus').onclick = () => updateTempo(10);
+            document.getElementById('fingering-btn').onclick = toggleFingers;
+            document.getElementById('cipher-btn').onclick = toggleCipher;
+            document.getElementById('play-btn').onclick = playPiano;
+            document.getElementById('stop-btn').onclick = stopAll;
+            document.getElementById('metro-btn').onclick = toggleMetro;
         };
 
         function loadSong(id) {
             stopAll();
             currentSongId = id;
             const song = SONGS[id];
-            
             document.getElementById('song-title').innerText = song.title;
             document.getElementById('song-subtitle').innerText = song.subtitle;
             tempo = song.tempo;
             document.getElementById('tempo-display').innerText = tempo;
-            
             const beatContainer = document.getElementById('beat-indicator-container');
             beatContainer.innerHTML = '';
             for(let i=0; i < song.beatsPerBar; i++) {
@@ -288,28 +357,19 @@ w: Sol Si Re Fa# | Re La Do# Mi | Sol Si Re Fa# | Re La Do# Mi |`
                 dot.className = "w-5 h-5 rounded-full bg-slate-200 transition-all duration-100 shadow-inner";
                 beatContainer.appendChild(dot);
             }
-
             renderScore();
         }
 
-        // Función para procesar el código ABC y traducir cifrados sobre la marcha
         function getProcessedAbc() {
             const song = SONGS[currentSongId];
-            let currentAbc = song.abc.replace(/Q:1\/4=\d+/, `Q:1/4=${tempo}`);
-            
-            // Filtro de Dedos
-            if (!fingersActive) {
-                currentAbc = currentAbc.replace(/![1-5]!/g, "");
-            }
-
-            // Manejo de Cifrado (Traducción de w:)
+            let abc = song.abc.replace(/Q:1\/4=\d+/, `Q:1/4=${tempo}`);
+            if (!fingersActive) abc = abc.replace(/![1-5]!/g, "");
             if (cipherMode === 'off') {
-                currentAbc = currentAbc.split('\n').filter(line => !line.trim().startsWith('w:')).join('\n');
+                abc = abc.split('\n').filter(line => !line.trim().startsWith('w:')).join('\n');
             } else if (cipherMode === 'ang') {
-                currentAbc = currentAbc.split('\n').map(line => {
+                abc = abc.split('\n').map(line => {
                     if (line.trim().startsWith('w:')) {
                         let content = line.substring(2);
-                        // Traducir cada palabra (nota) del latino al anglo
                         Object.keys(latToAng).forEach(lat => {
                             const regex = new RegExp(lat + '(?![a-z])', 'g');
                             content = content.replace(regex, latToAng[lat]);
@@ -319,93 +379,105 @@ w: Sol Si Re Fa# | Re La Do# Mi | Sol Si Re Fa# | Re La Do# Mi |`
                     return line;
                 }).join('\n');
             }
-            // Si es 'lat', se deja como está porque la base de datos ya está en Latino.
-
-            return currentAbc;
+            return abc;
         }
 
         function renderScore() {
             visualObj = ABCJS.renderAbc("paper", getProcessedAbc(), {
-                responsive: 'resize',
-                add_classes: true,
-                staffwidth: 740,
-                scale: 1.1,
-                clickListener: clickListener
+                responsive: 'resize', add_classes: true, staffwidth: 740, scale: 1.1,
+                clickListener: (abcElem, tuneNumber, classes, analysis, event) => {
+                    const legend = document.getElementById('note-legend');
+                    if (abcElem && abcElem.el_type === "note") {
+                        const pitch = abcElem.pitches[0].pitch;
+                        const mode = (cipherMode === 'ang') ? 'ang' : 'lat';
+                        legend.innerText = noteNames[mode][pitch % 12];
+                        legend.style.display = 'block';
+                        legend.style.left = (event.pageX) + 'px';
+                        legend.style.top = (event.pageY - 60) + 'px';
+                        setTimeout(() => legend.style.display = 'none', 1500);
+                    }
+                }
             })[0];
         }
 
-        // --- BOTONES DE CONTROL ---
-        document.getElementById('fingering-btn').onclick = function() {
+        function toggleFingers() {
             fingersActive = !fingersActive;
-            const text = document.getElementById('fingering-text');
-            const icon = document.getElementById('fingering-icon');
-
-            if (fingersActive) {
-                this.className = "btn-active px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
-                text.innerText = "DEDOS: ON";
-                icon.innerText = "🖐️";
-            } else {
-                this.className = "btn-inactive px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
-                text.innerText = "DEDOS: OFF";
-                icon.innerText = "🚫";
-            }
-            
-            const wasPlaying = isPlaying;
-            if (wasPlaying) stopAll();
+            this.className = fingersActive ? "btn-active px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm" : "btn-inactive px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
+            document.getElementById('fingering-text').innerText = fingersActive ? "DEDOS: ON" : "DEDOS: OFF";
+            document.getElementById('fingering-icon').innerText = fingersActive ? "🖐️" : "🚫";
             renderScore();
-            if (wasPlaying) playPiano();
-        };
+        }
 
-        // CICLO DE CIFRADO: Latino -> Anglo -> Off
-        document.getElementById('cipher-btn').onclick = function() {
-            const text = document.getElementById('cipher-text');
-            const icon = document.getElementById('cipher-icon');
-
-            if (cipherMode === 'lat') {
-                cipherMode = 'ang';
-                this.className = "btn-accent px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
-                text.innerText = "CIFRADO: ANGLO";
-                icon.innerText = "🇺🇸";
-            } else if (cipherMode === 'ang') {
-                cipherMode = 'off';
-                this.className = "btn-inactive px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
-                text.innerText = "CIFRADO: OFF";
-                icon.innerText = "🚫";
-            } else {
-                cipherMode = 'lat';
-                this.className = "btn-active px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
-                text.innerText = "CIFRADO: LATINO";
-                icon.innerText = "🔤";
-            }
+        function toggleCipher() {
+            if (cipherMode === 'lat') cipherMode = 'ang';
+            else if (cipherMode === 'ang') cipherMode = 'off';
+            else cipherMode = 'lat';
+            this.className = (cipherMode === 'lat') ? "btn-active px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm" : 
+                             (cipherMode === 'ang') ? "btn-accent px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm" : 
+                             "btn-inactive px-5 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 flex items-center gap-2 text-sm";
+            document.getElementById('cipher-text').innerText = (cipherMode === 'lat') ? "CIFRADO: LATINO" : (cipherMode === 'ang') ? "CIFRADO: ANGLO" : "CIFRADO: OFF";
+            document.getElementById('cipher-icon').innerText = (cipherMode === 'lat') ? "🔤" : (cipherMode === 'ang') ? "🇺🇸" : "🚫";
             renderScore();
-        };
+        }
 
-        function clickListener(abcElem, tuneNumber, classes, analysis, event) {
-            const legend = document.getElementById('note-legend');
-            if (abcElem && abcElem.el_type === "note") {
-                const pitch = abcElem.pitches[0].pitch;
-                // Mostrar en la leyenda el sistema que esté activo actualmente
-                const mode = (cipherMode === 'ang') ? 'ang' : 'lat';
-                const name = noteNames[mode][pitch % 12];
-                
-                legend.innerText = name;
-                legend.style.display = 'block';
-                legend.style.left = (event.pageX) + 'px';
-                legend.style.top = (event.pageY - 60) + 'px';
-                setTimeout(() => legend.style.display = 'none', 1500);
+        function updateTempo(v) {
+            tempo = Math.max(40, Math.min(220, tempo + v));
+            document.getElementById('tempo-display').innerText = tempo;
+            stopAll();
+            renderScore();
+        }
+
+        function stopAll() {
+            if (synthControl) { synthControl.synth.stop(); synthControl = null; }
+            if (timingCallbacks) { timingCallbacks.stop(); timingCallbacks = null; }
+            if (timerID) clearTimeout(timerID);
+            document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
+            document.querySelectorAll('[id^="beat-"]').forEach(b => b.classList.remove('active-beat'));
+            isPlaying = false; isMetroRunning = false;
+            document.getElementById('play-text').innerText = "OÍR PIANO";
+            document.getElementById('metro-btn').innerHTML = "⌛ METRÓNOMO";
+        }
+
+        function toggleMetro() {
+            if (isMetroRunning) { stopAll(); } else {
+                initAudio();
+                stopAll();
+                isMetroRunning = true; currentBeat = 0; nextNoteTime = audioCtx.currentTime;
+                timingCallbacks = new ABCJS.TimingCallbacks(visualObj, { qpm: tempo, eventCallback: eventCallback });
+                timingCallbacks.start();
+                scheduler();
+                this.innerText = "⏹ PARAR";
             }
         }
 
-        // --- MOTOR DE AUDIO Y METRÓNOMO ---
-        function playClick(time, isFirst) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.frequency.setValueAtTime(isFirst ? 1000 : 700, time);
-            g.gain.setValueAtTime(0.3, time);
-            g.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
-            osc.connect(g); g.connect(audioCtx.destination);
-            osc.start(time); osc.stop(time + 0.1);
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        async function playPiano() {
+            if (isPlaying) { stopAll(); return; }
+            stopAll(); initAudio();
+            if (ABCJS.synth.supportsAudio()) {
+                const synth = new ABCJS.synth.CreateSynth();
+                const audioObj = ABCJS.renderAbc("paper", getProcessedAbc(), { responsive: 'resize', add_classes: true, staffwidth: 740 })[0];
+                timingCallbacks = new ABCJS.TimingCallbacks(audioObj, { 
+                    qpm: tempo, eventCallback: eventCallback,
+                    beatCallback: (b) => {
+                        const song = SONGS[currentSongId];
+                        const n = (b % song.beatsPerBar) + 1;
+                        document.querySelectorAll('[id^="beat-"]').forEach(el => el.classList.remove('active-beat'));
+                        const dot = document.getElementById(`beat-${n}`);
+                        if (dot) dot.classList.add('active-beat');
+                    }
+                });
+                await synth.init({ visualObj: audioObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
+                await synth.prime();
+                timingCallbacks.start();
+                synth.start();
+                synthControl = { synth }; isPlaying = true;
+                document.getElementById('play-text').innerText = "PAUSAR";
+            }
         }
 
         function scheduler() {
@@ -424,71 +496,15 @@ w: Sol Si Re Fa# | Re La Do# Mi | Sol Si Re Fa# | Re La Do# Mi |`
             timerID = setTimeout(scheduler, 25);
         }
 
-        function updateTempo(v) {
-            tempo = Math.max(40, Math.min(220, tempo + v));
-            document.getElementById('tempo-display').innerText = tempo;
-            stopAll();
-            renderScore();
+        function playClick(time, isFirst) {
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.frequency.setValueAtTime(isFirst ? 1000 : 700, time);
+            g.gain.setValueAtTime(0.3, time);
+            g.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+            osc.connect(g); g.connect(audioCtx.destination);
+            osc.start(time); osc.stop(time + 0.1);
         }
-        document.getElementById('tempo-minus').onclick = () => updateTempo(-10);
-        document.getElementById('tempo-plus').onclick = () => updateTempo(10);
-
-        function stopAll() {
-            if (synthControl) { synthControl.synth.stop(); synthControl = null; }
-            if (timingCallbacks) { timingCallbacks.stop(); timingCallbacks = null; }
-            if (timerID) clearTimeout(timerID);
-            document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
-            document.querySelectorAll('[id^="beat-"]').forEach(b => b.classList.remove('active-beat'));
-            isPlaying = false; isMetroRunning = false;
-            document.getElementById('play-text').innerText = "OÍR PIANO";
-            document.getElementById('metro-btn').innerHTML = "⌛ METRÓNOMO";
-        }
-
-        document.getElementById('metro-btn').onclick = () => {
-            if (isMetroRunning) { stopAll(); } else {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                stopAll();
-                isMetroRunning = true; currentBeat = 0; nextNoteTime = audioCtx.currentTime;
-                timingCallbacks = new ABCJS.TimingCallbacks(visualObj, { qpm: tempo, eventCallback: eventCallback });
-                timingCallbacks.start();
-                scheduler();
-                document.getElementById('metro-btn').innerText = "⏹ PARAR";
-            }
-        };
-
-        async function playPiano() {
-            if (isPlaying) { stopAll(); return; }
-            stopAll();
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            if (ABCJS.synth.supportsAudio()) {
-                const synth = new ABCJS.synth.CreateSynth();
-                const audioObj = ABCJS.renderAbc("paper", getProcessedAbc(), { responsive: 'resize', add_classes: true, staffwidth: 740 })[0];
-                
-                const song = SONGS[currentSongId];
-                timingCallbacks = new ABCJS.TimingCallbacks(audioObj, { 
-                    qpm: tempo, 
-                    eventCallback: eventCallback,
-                    beatCallback: (b) => {
-                        const n = (b % song.beatsPerBar) + 1;
-                        document.querySelectorAll('[id^="beat-"]').forEach(el => el.classList.remove('active-beat'));
-                        const dot = document.getElementById(`beat-${n}`);
-                        if (dot) dot.classList.add('active-beat');
-                    }
-                });
-                await synth.init({ visualObj: audioObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
-                await synth.prime();
-                timingCallbacks.start();
-                synth.start();
-                synthControl = { synth }; isPlaying = true;
-                document.getElementById('play-text').innerText = "PAUSAR";
-            }
-        }
-
-        document.getElementById('play-btn').onclick = playPiano;
-        document.getElementById('stop-btn').onclick = stopAll;
 
         function eventCallback(ev) {
             document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
@@ -496,9 +512,7 @@ w: Sol Si Re Fa# | Re La Do# Mi | Sol Si Re Fa# | Re La Do# Mi |`
                 ev.elements.forEach(g => g.forEach(el => {
                     el.classList.add('abcjs-highlight');
                     const nid = Array.from(el.classList).find(c => c.startsWith('abcjs-n'));
-                    if (nid) {
-                        document.querySelectorAll(`.${nid}.abcjs-lyric`).forEach(l => l.classList.add('abcjs-highlight'));
-                    }
+                    if (nid) document.querySelectorAll(`.${nid}.abcjs-lyric`).forEach(l => l.classList.add('abcjs-highlight'));
                 }));
             }
         }
