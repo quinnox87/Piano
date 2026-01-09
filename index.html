@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PianoClass: Lumina Edition (Fixed Ciphers)</title>
+    <title>PianoClass: Lumina Edition</title>
     <!-- ABCjs para partituras -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/6.2.2/abcjs-basic-min.js"></script>
     <!-- Tailwind CSS -->
@@ -55,28 +55,50 @@
             .elegant-card { border-radius: 1.25rem; }
         }
 
-        /* ALTA VISIBILIDAD */
+        /* ESTILOS ABCJS */
         .abcjs-note { fill: #0F172A !important; transition: fill 0.1s ease; }
         .abcjs-staff { stroke: #475569 !important; stroke-width: 1.2; }
-        .abcjs-highlight { fill: #4F46E5 !important; stroke: #4F46E5 !important; filter: drop-shadow(0px 0px 3px rgba(79, 70, 229, 0.4)); }
+        
+        /* Resaltado de notas (SVG path) */
+        .abcjs-highlight { 
+            fill: #EF4444 !important; 
+            stroke: #EF4444 !important; 
+            filter: drop-shadow(0px 0px 4px rgba(239, 68, 68, 0.6)); 
+        }
+        
+        /* Resaltado específico para letras (texto) para evitar stroke sucio */
+        .lyric-highlight { 
+            fill: #4F46E5 !important; 
+            font-weight: 800;
+            text-shadow: 0px 0px 1px rgba(79, 70, 229, 0.5);
+        }
+        
         .abcjs-lyric { fill: #64748B; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; }
-        .abcjs-fingering { fill: #4F46E5; font-weight: 800; font-size: 10px; }
+        .abcjs-fingering { fill: #EF4444; font-weight: 800; font-size: 10px; }
 
         #paper { background: #FFFFFF; width: 100%; border-radius: 0.75rem; }
         #paper svg { width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* Botones */
+        /* CORRECCIÓN CSS .btn-lumina */
         .btn-lumina {
-            display: inline-flex; items-center: center; justify-content: center;
-            padding: 0.75rem 1rem; border-radius: 0.75rem;
-            font-weight: 600; font-size: 0.75rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            letter-spacing: 0.02em; cursor: pointer; user-select: none;
+            display: inline-flex;
+            align-items: center; /* Corregido items-center */
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            user-select: none;
         }
+
         .btn-primary { background: linear-gradient(135deg, #818CF8, #6366F1); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
         .btn-ghost { background-color: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
         .btn-stop { background-color: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; }
 
-        /* Opciones IA */
+        /* Opciones de Generación IA */
         .ai-option-btn {
             background-color: #FFFFFF; border: 1px solid #E2E8F0; color: #64748B;
             padding: 0.75rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 600;
@@ -84,11 +106,10 @@
         }
         .ai-option-btn.selected { background-color: #EEF2FF; color: #4F46E5; border-color: #6366F1; }
 
-        /* Metrónomo */
+        /* Visualización del Metrónomo */
         .beat-dot { transition: all 0.15s; background-color: #E2E8F0; width: 10px; height: 10px; border-radius: 50%; }
-        .beat-active { background-color: #34D399 !important; box-shadow: 0 0 10px rgba(52, 211, 153, 0.6); transform: scale(1.2); }
+        .beat-active { background-color: #EF4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); transform: scale(1.2); }
 
-        /* Notificación */
         #notification-box {
             position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
             padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: #1E293B; color: white;
@@ -102,12 +123,6 @@
             position: absolute; display: none; background: #1E293B; color: white;
             padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
             pointer-events: none; z-index: 50; transform: translate(-50%, -150%);
-        }
-
-        .modal-overlay {
-            position: fixed; inset: 0; background: rgba(255, 255, 255, 0.9);
-            z-index: 50; display: flex; align-items: center; justify-content: center;
-            backdrop-filter: blur(6px); padding: 1rem;
         }
     </style>
 </head>
@@ -127,13 +142,9 @@
             </div>
             
             <div class="flex items-center justify-center md:justify-end gap-2 md:gap-4 w-full md:w-auto">
-                <button onclick="toggleApiModal()" class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl shadow-sm group">
-                    <span id="api-status-icon" class="text-slate-400 group-hover:text-amber-500">🔑</span>
-                    <span class="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-wider">API</span>
-                </button>
                 <div class="bg-indigo-50 border border-indigo-100 px-3 md:px-5 py-2 rounded-xl shadow-sm flex items-center gap-2 md:gap-3">
                     <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                    <span class="text-[10px] md:text-xs font-bold text-indigo-700 uppercase tracking-widest">Resistencia</span>
+                    <span class="text-[10px] md:text-xs font-bold text-indigo-700 uppercase tracking-widest">Resistencia Cognitiva</span>
                 </div>
             </div>
         </header>
@@ -146,11 +157,10 @@
                     <label class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 md:mb-4 block">Repertorio Maestro</label>
                     <select id="song-selector" class="w-full bg-slate-50 text-slate-700 text-xs md:text-sm font-semibold py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-200 transition-all cursor-pointer">
                         <option value="minuet">Minueto en Sol (Bach) - Completo</option>
+                        <option value="preludio_bach">Preludio en Do (Bach BWV 846)</option>
+                        <option value="comptine">Comptine d'un autre été (Tiersen)</option>
                         <option value="scale_c">Escala Do Mayor - 2 Octavas</option>
-                        <option value="ode_joy">Oda a la Alegría - Estructura A-B-A</option>
-                        <option value="vals_1">Vals No. 1 - Desarrollo</option>
-                        <option value="brahms_lullaby">Canción de Cuna - Versión Extendida</option>
-                        <option value="cancan">Can-Can - Galop Final</option>
+                        <option value="ode_joy">Oda a la Alegría - Beethoven</option>
                     </select>
                     <div id="song-meta" class="mt-3 text-[10px] text-slate-400 italic">Bach / Barroco</div>
                 </div>
@@ -169,7 +179,7 @@
                             <span class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase">Tempo (BPM)</span>
                             <span id="tempo-display" class="text-lg md:text-xl font-bold text-indigo-600">110</span>
                         </div>
-                        <input type="range" id="tempo-slider" min="40" max="200" value="110" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                        <input type="range" id="tempo-slider" min="40" max="200" value="110" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
                     </div>
                 </div>
 
@@ -202,7 +212,8 @@
                         <div class="flex gap-2 md:gap-4" id="beat-container"></div>
                         <div class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 md:gap-2">
                             <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-400"></span> 
-                            <span>Modo: Resistencia Cognitiva</span>
+                            <span>Motor: Gemini 2.5 Flash</span>
+                            <span id="api-status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-300 ml-1" title="Estado API"></span>
                         </div>
                     </div>
 
@@ -211,42 +222,36 @@
                         <div class="flex justify-between items-start mb-6 md:mb-12">
                             <div>
                                 <h3 class="text-xl md:text-3xl font-bold text-slate-900">Compositor Maestro ✨</h3>
-                                <p class="text-xs md:text-sm text-slate-500 mt-0.5">Generación de partituras extensas con IA.</p>
+                                <p class="text-xs md:text-sm text-slate-500 mt-0.5">Composición inteligente basada en tu disciplina.</p>
                             </div>
                             <button onclick="toggleAiGenerator()" class="text-slate-400 hover:text-slate-900 text-2xl md:text-3xl p-2 transition-colors">✕</button>
+                        </div>
+                        
+                        <!-- API Key Input Seguro -->
+                        <div class="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Configuración API (Guardada localmente)</label>
+                             <div class="flex gap-2">
+                                 <input type="password" id="api-key-input" placeholder="Pega tu API Key de Google AI Studio aquí..." class="flex-grow text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 font-mono">
+                                 <button onclick="saveApiKey()" class="btn-lumina btn-ghost text-[10px] whitespace-nowrap">💾 Guardar</button>
+                             </div>
                         </div>
                         
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-6 mb-8 overflow-y-auto pr-2">
                             <button onclick="selectAiOption('Clásica', this)" class="ai-option-btn">🎹 Clásica</button>
                             <button onclick="selectAiOption('Moderna', this)" class="ai-option-btn">🎸 Moderna</button>
-                            <button onclick="selectAiOption('Bandas Sonoras', this)" class="ai-option-btn">🎬 Cine</button>
                             <button onclick="selectAiOption('Mano Derecha', this)" class="ai-option-btn">✋ Der.</button>
                             <button onclick="selectAiOption('Mano Izquierda', this)" class="ai-option-btn">🤚 Izq.</button>
                             <button onclick="selectAiOption('Acordes', this)" class="ai-option-btn">🎼 Acordes</button>
                             <button onclick="selectAiOption('Escalas', this)" class="ai-option-btn">📏 Escalas</button>
                             <button onclick="selectAiOption('Calentamiento', this)" class="ai-option-btn">☕ Calentar</button>
+                            <button onclick="selectAiOption('Cognitivo', this)" class="ai-option-btn">🧠 Cognitivo</button>
                         </div>
 
                         <div class="mt-auto flex flex-col items-center gap-4">
                             <button id="main-gen-btn" onclick="generateExercise()" class="btn-lumina btn-primary text-white w-full md:min-w-[320px] opacity-50 cursor-not-allowed py-4 md:py-5 text-base md:text-lg rounded-2xl" disabled>
-                                <span id="gen-btn-text">Generar Obra Extendida</span>
+                                <span id="gen-btn-text">Generar Obra con Gemini</span>
                                 <span id="gen-btn-loader" class="hidden animate-spin text-xl">⟳</span>
                             </button>
-                            <p id="api-warning" class="text-[9px] md:text-[10px] text-danger font-bold uppercase tracking-widest hidden italic">⚠ Configura la API primero</p>
-                        </div>
-                    </div>
-
-                    <!-- MODAL API CONFIG -->
-                    <div id="api-modal-overlay" class="modal-overlay hidden">
-                        <div class="bg-white border border-slate-200 p-6 md:p-10 rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-sm md:max-w-md animate-slide-up mx-4">
-                            <h3 class="text-xl md:text-2xl font-bold text-slate-900 mb-2 text-center">Gemini API Key</h3>
-                            <div class="space-y-4 md:space-y-6">
-                                <input type="password" id="api-key-input" placeholder="Pega tu clave aquí..." class="w-full bg-slate-50 border border-slate-200 text-slate-700 p-3 md:p-4 rounded-xl text-xs md:text-sm outline-none focus:ring-4 focus:ring-indigo-100 transition-all">
-                                <div class="flex gap-3 pt-2">
-                                    <button onclick="toggleApiModal()" class="flex-1 btn-lumina btn-ghost text-[10px]">Cerrar</button>
-                                    <button onclick="saveApiKey()" class="flex-1 btn-lumina btn-primary text-[10px]">Guardar</button>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -254,7 +259,7 @@
                         <div id="paper-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 hidden">
                              <div class="flex flex-col items-center gap-3">
                                 <div class="animate-spin rounded-full h-10 w-10 md:h-16 md:w-16 border-t-4 border-indigo-500 border-r-transparent"></div>
-                                <span class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Generando estructura...</span>
+                                <span class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Creando partitura...</span>
                              </div>
                         </div>
                         <div id="paper" class="w-full max-w-4xl"></div>
@@ -266,7 +271,7 @@
                             <div>Tono: <span id="key-sig" class="text-indigo-600 ml-1">--</span></div>
                         </div>
                         <div class="flex items-center gap-1 opacity-60">
-                            <span class="text-indigo-400">⚡</span> <span>Long-Play Engine</span>
+                            <span class="text-indigo-400">⚡</span> <span>Long-Play Engine v3.1 (Stable)</span>
                         </div>
                     </div>
                 </div>
@@ -275,59 +280,71 @@
     </div>
 
     <script>
+        // VARIABLE GLOBAL (se carga desde localStorage)
         let apiKey = ""; 
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"; // Modelo definido constante
 
-        // OBRAS RE-ESTRUCTURADAS: Cada línea de notas debe ir seguida inmediatamente de su w:
         const SONGS = {
             'minuet': { 
-                title: "Minueto en Sol Mayor (Bach)", 
+                title: "Minueto en Sol (Bach)", 
                 subtitle: "Bach / Barroco - Estructura Completa", 
                 tempo: 110, beats: 3, key: "G", time: "3/4", 
-                abc: `X:1\nM:3/4\nL:1/8\nQ:1/4=110\nK:G\nV:1 treble\nV:2 bass\n[V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |\nw: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |\n[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !1!F!2!G !3!A!2!B !3!A!1!G | !2!A6 |\nw: Do Re Do Si La | Si Do Si La Sol | Fa# Sol La Si La Sol | La |\n[V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |\nw: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |\n[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !1!A2 !2!B2 !3!A2 | !1!G6 |\nw: Do Re Do Si La | Si Do Si La Sol | La Si La | Sol |\n[V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |\nw: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |\n[V:2] !3!E,4 !3!E,2 | !5!G,4 !5!G,2 | !1!D,4 !1!D,2 | !1!D,6 |\nw: Mi Mi | Sol Sol | Re Re | Re |\n[V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |\nw: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |\n[V:2] !3!E,4 !3!E,2 | !5!G,4 !5!G,2 | !1!D,2 !1!D,2 !5!D,2 | !1!G,,6 |\nw: Mi Mi | Sol Sol | Re Re Re | Sol |` 
+                abc: `X:1\nM:3/4\nL:1/8\nQ:1/4=110\nK:G\nV:1 treble\nV:2 bass\n[V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |\nw: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |\n[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !1!F!2!G !3!A!2!B !3!A!1!G | !2!A6 |\nw: Do Re Do Si La | Si Do Si La Sol | Fa# Sol La Si La Sol | La |\n[V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |\nw: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |\n[V:2] !3!E,4 !3!E,2 | !5!G,4 !5!G,2 | !1!D,4 !1!D,2 | !1!D,6 |\nw: Mi Mi | Sol Sol | Re Re | Re |` 
+            },
+            'comptine': {
+                title: "Comptine d'un autre été",
+                subtitle: "Yann Tiersen - Beginner Version",
+                tempo: 80, beats: 4, key: "Em", time: "4/4",
+                abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=80\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !1!E2 !2!G2 !3!B2 !5!e2 | !3!B2 !2!G2 !1!E4 | !1!G2 !2!B2 !3!d2 !5!g2 | !3!d2 !2!B2 !1!G4 |\nw: Mi Sol Si Mi | Si Sol Mi | Sol Si Re Sol | Re Si Sol |\n[V:1] !1!D2 !2!F2 !3!A2 !5!d2 | !3!A2 !2!F2 !1!D4 | !1!E2 !2!A2 !3!c2 !5!e2 | !3!c2 !2!A2 !1!E4 |\nw: Re Fa# La Re | La Fa# Re | Mi La Do Mi | Do La Mi |\n[V:2] !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 |\nw: Mi Si Mi Si | Mi Si Mi Si | Sol Re Sol Re | Sol Re Sol Re |\n[V:2] !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 |\nw: Re La Re La | Re La Re La | La Mi La Mi | La Mi La Mi |`
+            },
+            'preludio_bach': {
+                title: "Preludio en Do Mayor (BWV 846)",
+                subtitle: "J.S. Bach - El Clave Bien Temperado",
+                tempo: 70, beats: 4, key: "C", time: "4/4",
+                abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=70\nK:C\nV:1 treble\nV:2 bass\n[V:1] z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!D!3!F!5!B !2!D!3!F!5!B | z !2!D!3!F!5!B !2!D!3!F!5!B |\nw: Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do | Re Fa Si Re Fa Si | Re Fa Si Re Fa Si |\n[V:1] z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c |\nw: Re Sol Do Re Sol Do | Re Sol Do Re Sol Do | Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do |\n[V:2] !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!A,4 z2 | !5!C,2 !1!A,4 z2 |\nw: Do Sol | Do Sol | Do La | Do La |\n[V:2] !5!B,,2 !1!G,4 z2 | !5!B,,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 |\nw: Si Sol | Si Sol | Do Sol | Do Sol |`
             },
             'scale_c': { 
-                title: "Escala Do Mayor (Maestro)", 
-                subtitle: "Técnica - 2 Octavas y Arpegios", 
+                title: "Escala Do Mayor", 
+                subtitle: "Técnica - 2 Octavas", 
                 tempo: 80, beats: 4, key: "C", time: "4/4", 
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |\n[V:1] !5!c' !4!b !3!a !2!g | !1!f !3!e !2!d !1!c | !5!c !4!B !3!A !2!G | !1!F !3!E !2!D !1!C |\nw: Do Si La Sol | Fa Mi Re Do | Do Si La Sol | Fa Mi Re Do |\n[V:1] !1!C !3!E !5!G !5!c | !1!E !3!G !5!c !5!e | !1!G !3!B !5!d !5!g | !5!c'4 |\nw: Do Mi Sol Do | Mi Sol Do Mi | Sol Si Re Sol | Do |\n[V:2] !5!C, !4!D, !3!E, !2!F, | !1!G, !3!A, !2!B, !1!C | !5!C !4!D !3!E !2!F | !1!G !3!A !2!B !1!c |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |\n[V:2] !1!c !2!B !3!A !1!G | !2!F !3!E !4!D !5!C | !1!C !2!B, !3!A, !1!G, | !2!F, !3!E, !4!D, !5!C, |\nw: Do Si La Sol | Fa Mi Re Do | Do Si La Sol | Fa Mi Re Do |\n[V:2] !5!C,4 | !5!E,4 | !5!G,4 | !1!C,4 |\nw: Do | Mi | Sol | Do |` 
+                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |` 
             },
             'ode_joy': { 
-                title: "Oda a la Alegría (Beethoven)", 
-                subtitle: "Estructura A-B-A Completa", 
+                title: "Oda a la Alegría", 
+                subtitle: "Beethoven - Melodía Principal", 
                 tempo: 120, beats: 4, key: "G", time: "4/4", 
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\nV:2 bass\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |\n[V:1] !2!A !2!A !3!B !1!G | !2!A !3!B/c/ !3!B !1!G | !2!A !3!B/c/ !3!B !2!A | !1!G !2!A !1!D2 |\nw: La La Si Sol | La Si Do Si Sol | La Si Do Si La | Sol La Re |\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |\n[V:2] !1!G,2 !2!B,2 | !1!D2 !1!G,2 | !2!E,2 !3!C2 | !1!D,4 |\nw: Sol Si | Re Sol | Mi Do | Re |\n[V:2] !1!G,2 !2!B,2 | !1!D2 !1!G,2 | !2!E,2 !1!D,2 | !1!G,4 |\nw: Sol Si | Re Sol | Mi Re | Sol |\n[V:2] !1!D,4 | !1!D,4 | !1!D,4 | !1!G,2 !1!D,2 |\nw: Re | Re | Re | Sol Re |\n[V:2] !1!G,2 !2!B,2 | !1!D2 !1!G,2 | !2!E,2 !1!D,2 | !1!G,4 |\nw: Sol Si | Re Sol | Mi Re | Sol |` 
-            },
-            'vals_1': { 
-                title: "Vals No. 1 (Danza)", 
-                subtitle: "Desarrollo rítmico en 3/4", 
-                tempo: 100, beats: 3, key: "G", time: "3/4", 
-                abc: `X:1\nM:3/4\nL:1/4\nQ:1/4=100\nK:G\nV:1 treble\nV:2 bass\n[V:1] !1!G !3!B !5!d | !5!d2 !5!d | !4!c !2!A !4!c | !3!B2 !1!G |\nw: Sol Si Re | Re Re | Do La Do | Si Sol |\n[V:1] !1!G !3!B !5!d | !5!d2 !5!d | !4!c !2!A !4!c | !1!G3 |\nw: Sol Si Re | Re Re | Do La Do | Sol |\n[V:1] !2!A !3!B !4!c | !5!d2 !3!B | !2!A !3!B !4!c | !2!A2 !1!D |\nw: La Si Do | Re Si | La Si Do | La Re |\n[V:1] !1!G !3!B !5!d | !5!g2 !4!f | !3!e !2!d !4!c | !1!G3 |\nw: Sol Si Re | Sol Fa | Mi Re Do | Sol |\n[V:2] !5!G,, [G,B,D] [G,B,D] | !5!G,, [G,B,D] [G,B,D] | !2!F,, [F,A,C] [F,A,C] | !5!G,, [G,B,D] [G,B,D] |\nw: Sol Maj Maj | Sol Maj Maj | Fa Maj Maj | Sol Maj Maj |\n[V:2] !5!G,, [G,B,D] [G,B,D] | !5!G,, [G,B,D] [G,B,D] | !2!F,, [F,A,C] [F,A,C] | !5!G,,3 |\nw: Sol Maj Maj | Sol Maj Maj | Fa Maj Maj | Sol |\n[V:2] !1!D, [F,A,C] [F,A,C] | !5!G, [G,B,D] [G,B,D] | !1!D, [F,A,C] [F,A,C] | !1!D,3 |\nw: Re Maj Maj | Sol Maj Maj | Re Maj Maj | Re |\n[V:2] !5!G,, [G,B,D] [G,B,D] | !5!B,, [G,B,D] [G,B,D] | !1!D, [F,A,C] [F,A,C] | !5!G,,3 |\nw: Sol Maj Maj | Si Maj Maj | Re Maj Maj | Sol |` 
-            },
-            'brahms_lullaby': { 
-                title: "Canción de Cuna", 
-                subtitle: "Johannes Brahms - Versión Extendida", 
-                tempo: 80, beats: 3, key: "C", time: "3/4", 
-                abc: `X:1\nM:3/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\nV:2 bass\n[V:1] !3!E E !5!G | !3!E E !5!G | !3!E !5!G !5!c | !4!B2 !2!A |\nw: Mi Mi Sol | Mi Mi Sol | Mi Sol Do | Si La |\n[V:1] !2!D D !4!F | !2!D D !4!F | !2!D !4!F !4!B | !3!A2 !1!G |\nw: Re Re Fa | Re Re Fa | Re Fa Si | La Sol |\n[V:1] !3!E E !5!G | !3!E E !5!G | !3!E !5!G !5!c | !4!B2 !2!A |\nw: Mi Mi Sol | Mi Mi Sol | Mi Sol Do | Si La |\n[V:1] !2!D D !4!F | !3!B2 !4!A | !2!G !1!C !2!D | !1!C3 |\nw: Re Re Fa | Si La | Sol Do Re | Do |\n[V:2] !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] |\nw: Do Maj Maj | Do Maj Maj | Do Maj Maj | Sol Maj Maj |\n[V:2] !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !5!C,3 |\nw: Sol Maj Maj | Sol Maj Maj | Sol Maj Maj | Do |\n[V:2] !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !5!C, [!3!E,!1!G,] [!3!E,!1!G,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] |\nw: Do Maj Maj | Do Maj Maj | Do Maj Maj | Sol Maj Maj |\n[V:2] !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !1!G,, [!4!D,!2!F,] [!4!D,!2!F,] | !5!C,3 |\nw: Sol Maj Maj | Sol Maj Maj | Sol Maj Maj | Do |` 
-            },
-            'cancan': { 
-                title: "Can-Can (Final Galop)", 
-                subtitle: "Offenbach - Alta Energía", 
-                tempo: 130, beats: 4, key: "C", time: "4/4", 
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=130\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C !1!C !2!D !2!D | !3!E !3!E !4!F !4!F | !5!G !5!G !5!G !5!G | !3!E2 !1!C2 |\nw: Do Do Re Re | Mi Mi Fa Fa | Sol Sol Sol Sol | Mi Do |\n[V:1] !1!C !1!C !2!D !2!D | !3!E !3!E !4!F !4!F | !5!G !2!B !3!d !5!g | !5!c'4 |\nw: Do Do Re Re | Mi Mi Fa Fa | Sol Si Re Sol | Do |\n[V:1] !1!c !1!c !2!d !2!d | !3!e !3!e !4!f !4!f | !5!g !5!g !5!g !5!g | !3!e2 !1!c2 |\nw: Do Do Re Re | Mi Mi Fa Fa | Sol Sol Sol Sol | Mi Do |\n[V:1] !1!c !1!c !2!d !2!d | !3!e !3!e !4!f !4!f | !5!g !2!b !3!d' !5!g' | !5!c'4 |\nw: Do Do Re Re | Mi Mi Fa Fa | Sol Si Re Sol | Do |\n[V:2] !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, |\nw: Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol |\n[V:2] !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !1!G, !2!B, !3!D !1!G | !5!C,4 |\nw: Do Sol Do Sol | Do Sol Do Sol | Sol Si Re Sol | Do |\n[V:2] !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, |\nw: Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol | Do Sol Do Sol |\n[V:2] !5!C, !1!G, !5!C, !1!G, | !5!C, !1!G, !5!C, !1!G, | !1!G, !2!B, !3!D !1!G | !5!C,4 |\nw: Do Sol Do Sol | Do Sol Do Sol | Sol Si Re Sol | Do |` 
+                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |` 
             }
         };
 
-        const noteNamesMap = { 
-            "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B" 
-        };
+        const noteNamesMap = { "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B" };
 
         let state = { songId: 'minuet', tempo: 110, fingers: true, cipher: 'lat', isPlaying: false, isMetro: false, audioCtx: null, generatedSong: null, currentOption: null };
         let abcInstance, synthControl, timingCallbacks, metronomeTimer;
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Cargar API Key
+            apiKey = localStorage.getItem('pianoclass_gemini_key') || "";
+            if(apiKey) {
+                document.getElementById('api-status-dot').classList.replace('bg-slate-300', 'bg-emerald-400');
+                document.getElementById('api-key-input').value = apiKey;
+            }
+
             loadSong('minuet');
             setupListeners();
         });
+
+        function saveApiKey() {
+            const input = document.getElementById('api-key-input').value.trim();
+            if(input) {
+                apiKey = input;
+                localStorage.setItem('pianoclass_gemini_key', apiKey);
+                document.getElementById('api-status-dot').classList.replace('bg-slate-300', 'bg-emerald-400');
+                showNotification("API Key guardada correctamente");
+            } else {
+                showNotification("La API Key no puede estar vacía");
+            }
+        }
 
         function setupListeners() {
             document.getElementById('song-selector').addEventListener('change', (e) => loadSong(e.target.value));
@@ -348,18 +365,53 @@
             };
         }
 
-        function toggleApiModal() { document.getElementById('api-modal-overlay').classList.toggle('hidden'); }
-        function toggleAiGenerator() { document.getElementById('ai-generator-overlay').classList.toggle('hidden'); }
+        // --- LÓGICA CENTRALIZADA ABC ---
+        function getEffectiveAbc(song){
+          let abc = song.abc;
 
-        function saveApiKey() {
-            const input = document.getElementById('api-key-input').value;
-            if(input) {
-                apiKey = input;
-                document.getElementById('api-status-icon').className = 'text-amber-500';
-                toggleApiModal();
-                showNotification("API Guardada.");
-            }
+          // Tempo: Forzar tempo actual
+          if (abc.includes('Q:')) abc = abc.replace(/Q:1\/4=\d+/, `Q:1/4=${state.tempo}`);
+          else abc = abc.replace('K:', `Q:1/4=${state.tempo}\nK:`);
+
+          // Digitación
+          if(!state.fingers) abc = abc.replace(/![1-5]!/g, "");
+
+          // Cifrado y Letras (w:)
+          if(state.cipher === 'off') {
+            // Elimina líneas que empiezan por w:
+            abc = abc.split('\n').filter(l => !l.trim().startsWith('w:')).join('\n');
+          } else if (state.cipher === 'ang') {
+            // Convierte latino a anglosajón
+            abc = abc.split('\n').map(line => {
+              if (line.trim().startsWith('w:')) {
+                let content = line.replace(/^\s*w:\s*/, '');
+                const sortedKeys = Object.keys(noteNamesMap).sort((a,b) => b.length - a.length);
+                sortedKeys.forEach(k => {
+                  const regex = new RegExp(k + '(?![a-z])', 'g');
+                  content = content.replace(regex, noteNamesMap[k]);
+                });
+                return 'w: ' + content;
+              }
+              return line;
+            }).join('\n');
+          }
+          // Si es 'lat', dejamos el original (asumiendo que viene en latino)
+          return abc;
         }
+
+        function pitchToNoteName(pitch, lang='lat'){
+            if (pitch === undefined || pitch === null) return "";
+            const namesAng = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+            const namesLat = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+            // Cálculo de índice de nota (0-11) y octava
+            const noteIndex = ((pitch % 12) + 12) % 12;
+            const octave = Math.floor(pitch / 12) - 1; 
+            
+            const noteName = (lang === 'ang') ? namesAng[noteIndex] : namesLat[noteIndex];
+            return `${noteName}${octave}`;
+        }
+
+        function toggleAiGenerator() { document.getElementById('ai-generator-overlay').classList.toggle('hidden'); }
 
         function selectAiOption(option, element) {
             state.currentOption = option;
@@ -367,57 +419,68 @@
             element.classList.add('selected');
             const genBtn = document.getElementById('main-gen-btn');
             genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            if(!apiKey) document.getElementById('api-warning').classList.remove('hidden');
         }
 
         async function callGemini(promptText) {
-            if(!apiKey) return null;
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                });
-                const data = await response.json();
-                return data.candidates?.[0]?.content?.parts?.[0]?.text;
-            } catch (error) { showNotification("Error IA."); return null; }
+            if (!apiKey) {
+                showNotification("Error: Configura tu API Key primero (icono 💾)");
+                return null;
+            }
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+            
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+                    });
+                    const data = await response.json();
+                    if (data.error) throw new Error(data.error.message);
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (error) {
+                    if (i === 4) {
+                        showNotification("Error IA: " + error.message);
+                        return null;
+                    }
+                    const delay = Math.pow(2, i) * 1000;
+                    await new Promise(r => setTimeout(r, delay));
+                }
+            }
         }
 
         async function generateExercise() {
-            if (!state.currentOption || !apiKey) return;
+            if (!state.currentOption) return;
             const btn = document.getElementById('main-gen-btn'), loader = document.getElementById('gen-btn-loader'), 
                   text = document.getElementById('gen-btn-text'), paperLoading = document.getElementById('paper-loading');
             btn.disabled = true; loader.classList.remove('hidden'); text.classList.add('hidden'); paperLoading.classList.remove('hidden');
 
-            let handRule = state.currentOption === 'Mano Izquierda' ? "V:1 clef=bass" : (state.currentOption === 'Mano Derecha' ? "V:1 clef=treble" : "V:1 (derecha) y V:2 clef=bass (izquierda)");
-
-            const prompt = `Genera un ejercicio de piano de LARGA DURACIÓN (16 compases) en formato ABC basándote en: "${state.currentOption}".
-REGLAS: X:1, T:Ejercicio IA, M:4/4, L:1/4, K:C. ${handRule}. 
-CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA LÍNEA de notas, pon una línea 'w:' con los nombres en español (Do, Re...). Incluye digitación (!1!-!5!). Devuelve SOLO código plano.`;
+            const prompt = `Genera un ejercicio de piano (8 compases) en formato ABC basado en: "${state.currentOption}".
+REGLAS: X:1, T:Composición IA, M:4/4, L:1/4, K:C. Notas con digitación !1!-!5!. Incluye línea 'w:' con nombres Do, Re, Mi... 
+Devuelve solo el código ABC limpio.`;
 
             let abcCode = await callGemini(prompt);
             if (abcCode) {
                 abcCode = abcCode.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
-                state.generatedSong = { title: "Composición IA", subtitle: `Enfoque: ${state.currentOption}`, tempo: 100, beats: 4, key: "C", time: "4/4", abc: abcCode };
-                const timeMatch = abcCode.match(/M:(\d+)\/(\d+)/);
-                if (timeMatch) state.generatedSong.beats = parseInt(timeMatch[1]);
+                state.generatedSong = { title: "Composición IA", subtitle: `Estilo: ${state.currentOption}`, tempo: 100, beats: 4, key: "C", time: "4/4", abc: abcCode };
                 loadSong('generated');
                 toggleAiGenerator();
+                showNotification("¡Obra generada con éxito!");
             }
             btn.disabled = false; loader.classList.add('hidden'); text.classList.remove('hidden'); paperLoading.classList.add('hidden');
         }
 
         function loadSong(id) {
             stopAll();
-            let song = (id === 'generated' && state.generatedSong) ? state.generatedSong : SONGS[id];
+            let song = (id === 'generated' && state.generatedSong) ? state.generatedSong : (SONGS[id] || SONGS['minuet']);
             state.songId = id;
-            document.getElementById('song-meta').innerText = song.subtitle || "Cargando...";
+            document.getElementById('song-meta').innerText = song.subtitle || "";
             updateTempo(0, song.tempo);
             document.getElementById('time-sig').innerText = song.time;
             document.getElementById('key-sig').innerText = song.key;
             const beatContainer = document.getElementById('beat-container');
             beatContainer.innerHTML = '';
-            for(let i=0; i<song.beats; i++) {
+            for(let i=0; i<(song.beats || 4); i++) {
                 const dot = document.createElement('div');
                 dot.className = `beat-dot`;
                 dot.id = `beat-${i+1}`;
@@ -428,40 +491,24 @@ CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA L
 
         function renderScore() {
             let song = state.songId === 'generated' ? state.generatedSong : SONGS[state.songId];
-            let abc = song.abc;
-            if (abc.includes('Q:')) abc = abc.replace(/Q:1\/4=\d+/, `Q:1/4=${state.tempo}`);
-            else abc = abc.replace('K:', `Q:1/4=${state.tempo}\nK:`);
-            if(!state.fingers) abc = abc.replace(/![1-5]!/g, "");
-
-            if(state.cipher === 'off') {
-                abc = abc.split('\n').filter(l => !l.trim().startsWith('w:')).join('\n');
-            } else if (state.cipher === 'ang') {
-                abc = abc.split('\n').map(line => {
-                    if (line.trim().startsWith('w:')) {
-                        let content = line.replace(/^\s*w:\s*/, '');
-                        // Mapeo ordenado para no pisar (ej: Sol antes que So)
-                        const sortedKeys = Object.keys(noteNamesMap).sort((a,b) => b.length - a.length);
-                        sortedKeys.forEach(k => {
-                            const regex = new RegExp(k + '(?![a-z])', 'g');
-                            content = content.replace(regex, noteNamesMap[k]);
-                        });
-                        return 'w: ' + content;
-                    }
-                    return line;
-                }).join('\n');
-            }
+            // Usamos la lógica centralizada
+            let abc = getEffectiveAbc(song);
 
             abcInstance = ABCJS.renderAbc("paper", abc, {
                 responsive: 'resize', add_classes: true, staffwidth: 800, scale: 1.1,
-                clickListener: (abcElem) => { if (abcElem && abcElem.el_type === "note") showTooltip(window.event, abcElem.pitches[0].pitch); }
+                // Click listener corregido usando el evento pasado por ABCjs
+                clickListener: (abcElem, tuneNumber, classes, analysis, drag, mouseEvent) => {
+                  if (abcElem && abcElem.el_type === "note") showTooltip(mouseEvent, abcElem.pitches?.[0]?.pitch);
+                }
             })[0];
         }
 
         function updateTempo(delta, exact = null) {
-            state.tempo = exact ? exact : Math.max(40, Math.min(220, state.tempo + delta));
+            state.tempo = exact ? exact : Math.max(40, Math.min(200, state.tempo + delta));
             document.getElementById('tempo-display').innerText = state.tempo;
             document.getElementById('tempo-slider').value = state.tempo;
-            if(state.isPlaying || state.isMetro) { const wasPlaying = state.isPlaying; stopAll(); if(wasPlaying) playPiano(); } else renderScore();
+            if(state.isPlaying || state.isMetro) stopAll();
+            else renderScore();
         }
 
         function initAudio() {
@@ -471,27 +518,46 @@ CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA L
 
         async function playPiano() {
             if (state.isPlaying) { stopAll(); return; }
+            
+            // Gestión de conflicto con Metrónomo
+            if(state.isMetro) {
+                stopAll();
+                showNotification("Metrónomo detenido. Iniciando reproducción.");
+                // Pequeña pausa para evitar solapamiento de audio
+                await new Promise(r => setTimeout(r, 100));
+            }
+
             initAudio(); state.isPlaying = true;
-            document.getElementById('play-btn').classList.replace('btn-primary', 'btn-ghost');
             document.getElementById('play-btn').innerHTML = '<span>⏸ Pausar</span>';
 
             if (ABCJS.synth.supportsAudio()) {
                 const synth = new ABCJS.synth.CreateSynth();
                 let song = state.songId === 'generated' ? state.generatedSong : SONGS[state.songId];
-                const audioObj = ABCJS.renderAbc("paper", song.abc.replace(/Q:1\/4=\d+/, `Q:1/4=${state.tempo}`), { responsive: 'resize' })[0];
+                
+                // CRÍTICO: Usar el mismo ABC procesado que se ve en pantalla
+                const effectiveAbc = getEffectiveAbc(song);
+
+                const audioObj = ABCJS.renderAbc("paper", effectiveAbc, { responsive: 'resize' })[0];
                 timingCallbacks = new ABCJS.TimingCallbacks(audioObj, {
                     qpm: state.tempo,
                     eventCallback: (ev) => {
+                        // Limpiar highlights previos
                         document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
+                        document.querySelectorAll('.lyric-highlight').forEach(el => el.classList.remove('lyric-highlight'));
+
                         if (ev && ev.elements) {
                             ev.elements.forEach(set => set.forEach(el => {
-                                el.classList.add('abcjs-highlight');
-                                const nid = Array.from(el.classList).find(c => c.startsWith('abcjs-n'));
-                                if(nid) document.querySelectorAll(`.${nid}.abcjs-lyric`).forEach(l => l.classList.add('abcjs-highlight'));
+                                // Diferenciar nota de letra
+                                const isLyric = el.classList.contains('abcjs-lyric');
+                                if(isLyric) {
+                                    el.classList.add('lyric-highlight'); // Clase limpia para texto
+                                } else {
+                                    el.classList.add('abcjs-highlight'); // Clase SVG para notas
+                                }
                             }));
                         }
                     },
-                    beatCallback: (beatNumber) => visualizeBeat((beatNumber % song.beats) + 1)
+                    beatCallback: (beatNumber) => visualizeBeat((beatNumber % (song.beats || 4)) + 1)
                 });
                 await synth.init({ visualObj: audioObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
                 await synth.prime(); synth.start(); timingCallbacks.start(); synthControl = { synth };
@@ -506,8 +572,8 @@ CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA L
             function schedule() {
                 if(!state.isMetro) return;
                 while (nextTime < state.audioCtx.currentTime + 0.1) {
-                    playClick(nextTime, currentBeat % song.beats === 0);
-                    const b = (currentBeat % song.beats) + 1;
+                    playClick(nextTime, currentBeat % (song.beats || 4) === 0);
+                    const b = (currentBeat % (song.beats || 4)) + 1;
                     setTimeout(() => visualizeBeat(b), (nextTime - state.audioCtx.currentTime) * 1000);
                     nextTime += 60.0 / state.tempo; currentBeat++;
                 }
@@ -528,10 +594,10 @@ CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA L
             if(synthControl) { synthControl.synth.stop(); synthControl = null; }
             if(timingCallbacks) { timingCallbacks.stop(); timingCallbacks = null; }
             if(metronomeTimer) { clearTimeout(metronomeTimer); metronomeTimer = null; }
-            const btn = document.getElementById('play-btn');
-            btn.classList.replace('btn-ghost', 'btn-primary'); btn.innerHTML = '<span>▶ Iniciar Práctica</span>';
+            document.getElementById('play-btn').innerHTML = '<span>▶ Iniciar Práctica</span>';
             document.getElementById('metro-btn').classList.remove('bg-indigo-500', 'text-white');
             document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
+            document.querySelectorAll('.lyric-highlight').forEach(el => el.classList.remove('lyric-highlight'));
             document.querySelectorAll('.beat-dot').forEach(el => el.classList.remove('beat-active'));
         }
 
@@ -544,33 +610,35 @@ CIFRADO CRÍTICO: Divide la música en líneas de 4 compases. DESPUÉS DE CADA L
         function toggleFingers() {
             state.fingers = !state.fingers;
             document.getElementById('fingering-status').innerText = state.fingers ? 'ON' : 'OFF';
-            document.getElementById('fingering-status').className = state.fingers ? 'bg-indigo-100 text-indigo-600 px-2.5 py-0.5 rounded-full text-[10px] font-bold' : 'bg-slate-200 text-slate-500 px-2.5 py-0.5 rounded-full text-[10px] font-bold';
             renderScore();
         }
 
         function toggleCipher() {
             const status = document.getElementById('cipher-status');
-            if (state.cipher === 'lat') { state.cipher = 'ang'; status.innerText = 'ANG'; status.classList.replace('bg-slate-200', 'bg-indigo-100'); status.classList.replace('text-slate-500', 'text-indigo-600'); }
-            else if (state.cipher === 'ang') { state.cipher = 'off'; status.innerText = 'OFF'; status.classList.replace('bg-indigo-100', 'bg-slate-200'); status.classList.replace('text-indigo-600', 'text-slate-500'); }
+            if (state.cipher === 'lat') { state.cipher = 'ang'; status.innerText = 'ANG'; }
+            else if (state.cipher === 'ang') { state.cipher = 'off'; status.innerText = 'OFF'; }
             else { state.cipher = 'lat'; status.innerText = 'LAT'; }
             renderScore();
         }
 
         function showTooltip(e, pitch) {
-            if(!e) return;
+            if(!e || pitch === undefined || pitch === null) return;
             const tooltip = document.getElementById('note-tooltip');
-            tooltip.innerText = state.cipher === 'ang' ? (pitch % 12) : (pitch % 12); // Simplificado
+            const lang = (state.cipher === 'ang') ? 'ang' : 'lat';
+            
+            tooltip.innerText = pitchToNoteName(pitch, lang);
+            
             tooltip.style.display = 'block'; 
             const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
             const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
             tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
-            setTimeout(() => tooltip.style.display = 'none', 1500);
+            setTimeout(() => tooltip.style.display = 'none', 1200);
         }
 
         function showNotification(msg) {
             const box = document.getElementById('notification-box');
             box.innerText = msg; box.style.display = 'block';
-            setTimeout(() => { box.style.display = 'none'; }, 3000);
+            setTimeout(() => box.style.display = 'none', 4000);
         }
     </script>
 </body>
