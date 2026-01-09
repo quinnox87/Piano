@@ -59,18 +59,17 @@
         .abcjs-note { fill: #0F172A !important; transition: fill 0.1s ease; }
         .abcjs-staff { stroke: #475569 !important; stroke-width: 1.2; }
         
-        /* Resaltado de notas (SVG path) */
+        /* Resaltado de notas durante reproducción */
         .abcjs-highlight { 
             fill: #EF4444 !important; 
             stroke: #EF4444 !important; 
             filter: drop-shadow(0px 0px 4px rgba(239, 68, 68, 0.6)); 
         }
         
-        /* Resaltado específico para letras (texto) para evitar stroke sucio */
+        /* Resaltado de cifrado/lyric */
         .lyric-highlight { 
             fill: #4F46E5 !important; 
             font-weight: 800;
-            text-shadow: 0px 0px 1px rgba(79, 70, 229, 0.5);
         }
         
         .abcjs-lyric { fill: #64748B; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; }
@@ -79,10 +78,9 @@
         #paper { background: #FFFFFF; width: 100%; border-radius: 0.75rem; }
         #paper svg { width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* CORRECCIÓN CSS .btn-lumina */
         .btn-lumina {
             display: inline-flex;
-            align-items: center; /* Corregido items-center */
+            align-items: center;
             justify-content: center;
             padding: 0.75rem 1rem;
             border-radius: 0.75rem;
@@ -98,15 +96,6 @@
         .btn-ghost { background-color: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
         .btn-stop { background-color: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; }
 
-        /* Opciones de Generación IA */
-        .ai-option-btn {
-            background-color: #FFFFFF; border: 1px solid #E2E8F0; color: #64748B;
-            padding: 0.75rem 0.5rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 600;
-            transition: all 0.2s; text-align: center;
-        }
-        .ai-option-btn.selected { background-color: #EEF2FF; color: #4F46E5; border-color: #6366F1; }
-
-        /* Visualización del Metrónomo */
         .beat-dot { transition: all 0.15s; background-color: #E2E8F0; width: 10px; height: 10px; border-radius: 50%; }
         .beat-active { background-color: #EF4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); transform: scale(1.2); }
 
@@ -161,8 +150,18 @@
                         <option value="comptine">Comptine d'un autre été (Tiersen)</option>
                         <option value="scale_c">Escala Do Mayor - 2 Octavas</option>
                         <option value="ode_joy">Oda a la Alegría - Beethoven</option>
+                        <option value="fur_elise_theme">Für Elise (tema inicial) - Beethoven</option>
+                        <option value="bach_minuet_g_simple">Minueto en Sol (simplificado) - Bach</option>
+                        <option value="mozart_ah_vous_var1">Ah, vous dirai-je, Maman (var. fácil) - Mozart</option>
+                        <option value="schumann_melody">Melodía Op.68 nº1 - Schumann</option>
+                        <option value="satie_gymno1_theme">Gymnopédie nº1 (tema fácil) - Satie</option>
+                        <option value="tchaikovsky_morning_theme">Morning Op.39 (tema fácil) - Tchaikovsky</option>
+                        <option value="burgmuller_arabesque_simple">Arabesque Op.100 nº2 (simplificada) - Burgmüller</option>
+                        <option value="clementi_sonatina36_1_theme">Sonatina Op.36 nº1 (tema fácil) - Clementi</option>
+                        <option value="chopin_prelude28_4_theme">Preludio Op.28 nº4 (tema fácil) - Chopin</option>
+                        <option value="bartok_mikrokosmos_easy">Mikrokosmos (ejercicio fácil) - Bartók</option>
                     </select>
-                    <div id="song-meta" class="mt-3 text-[10px] text-slate-400 italic">Bach / Barroco</div>
+                    <div id="song-meta" class="mt-3 text-[10px] text-slate-400 italic">Cargando repertorio...</div>
                 </div>
 
                 <div class="elegant-card p-4 md:p-6">
@@ -196,13 +195,6 @@
                         </button>
                     </div>
                 </div>
-
-                <div class="elegant-card p-4 border-dashed border-indigo-200 bg-indigo-50/30">
-                    <button onclick="toggleAiGenerator()" class="w-full flex flex-col items-center gap-2 group transition-all">
-                        <span class="text-2xl filter drop-shadow-sm group-hover:scale-110 transition-transform">✨</span>
-                        <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest text-center">Generar Obra IA</span>
-                    </button>
-                </div>
             </div>
 
             <div class="lg:col-span-9">
@@ -212,56 +204,11 @@
                         <div class="flex gap-2 md:gap-4" id="beat-container"></div>
                         <div class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 md:gap-2">
                             <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-400"></span> 
-                            <span>Motor: Gemini 2.5 Flash</span>
-                            <span id="api-status-dot" class="w-1.5 h-1.5 rounded-full bg-slate-300 ml-1" title="Estado API"></span>
-                        </div>
-                    </div>
-
-                    <!-- MODAL COMPOSITOR IA -->
-                    <div id="ai-generator-overlay" class="fixed inset-0 z-[60] bg-white/95 p-6 md:p-12 hidden animate-fade-in flex flex-col">
-                        <div class="flex justify-between items-start mb-6 md:mb-12">
-                            <div>
-                                <h3 class="text-xl md:text-3xl font-bold text-slate-900">Compositor Maestro ✨</h3>
-                                <p class="text-xs md:text-sm text-slate-500 mt-0.5">Composición inteligente basada en tu disciplina.</p>
-                            </div>
-                            <button onclick="toggleAiGenerator()" class="text-slate-400 hover:text-slate-900 text-2xl md:text-3xl p-2 transition-colors">✕</button>
-                        </div>
-                        
-                        <!-- API Key Input Seguro -->
-                        <div class="mb-8 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                             <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Configuración API (Guardada localmente)</label>
-                             <div class="flex gap-2">
-                                 <input type="password" id="api-key-input" placeholder="Pega tu API Key de Google AI Studio aquí..." class="flex-grow text-xs bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 font-mono">
-                                 <button onclick="saveApiKey()" class="btn-lumina btn-ghost text-[10px] whitespace-nowrap">💾 Guardar</button>
-                             </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-6 mb-8 overflow-y-auto pr-2">
-                            <button onclick="selectAiOption('Clásica', this)" class="ai-option-btn">🎹 Clásica</button>
-                            <button onclick="selectAiOption('Moderna', this)" class="ai-option-btn">🎸 Moderna</button>
-                            <button onclick="selectAiOption('Mano Derecha', this)" class="ai-option-btn">✋ Der.</button>
-                            <button onclick="selectAiOption('Mano Izquierda', this)" class="ai-option-btn">🤚 Izq.</button>
-                            <button onclick="selectAiOption('Acordes', this)" class="ai-option-btn">🎼 Acordes</button>
-                            <button onclick="selectAiOption('Escalas', this)" class="ai-option-btn">📏 Escalas</button>
-                            <button onclick="selectAiOption('Calentamiento', this)" class="ai-option-btn">☕ Calentar</button>
-                            <button onclick="selectAiOption('Cognitivo', this)" class="ai-option-btn">🧠 Cognitivo</button>
-                        </div>
-
-                        <div class="mt-auto flex flex-col items-center gap-4">
-                            <button id="main-gen-btn" onclick="generateExercise()" class="btn-lumina btn-primary text-white w-full md:min-w-[320px] opacity-50 cursor-not-allowed py-4 md:py-5 text-base md:text-lg rounded-2xl" disabled>
-                                <span id="gen-btn-text">Generar Obra con Gemini</span>
-                                <span id="gen-btn-loader" class="hidden animate-spin text-xl">⟳</span>
-                            </button>
+                            <span>Versión de Publicación</span>
                         </div>
                     </div>
 
                     <div class="flex-grow p-4 md:p-12 overflow-x-auto flex flex-col items-center bg-white relative">
-                        <div id="paper-loading" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10 hidden">
-                             <div class="flex flex-col items-center gap-3">
-                                <div class="animate-spin rounded-full h-10 w-10 md:h-16 md:w-16 border-t-4 border-indigo-500 border-r-transparent"></div>
-                                <span class="text-indigo-600 font-bold text-[10px] uppercase tracking-widest">Creando partitura...</span>
-                             </div>
-                        </div>
                         <div id="paper" class="w-full max-w-4xl"></div>
                     </div>
 
@@ -271,7 +218,7 @@
                             <div>Tono: <span id="key-sig" class="text-indigo-600 ml-1">--</span></div>
                         </div>
                         <div class="flex items-center gap-1 opacity-60">
-                            <span class="text-indigo-400">⚡</span> <span>Long-Play Engine v3.1 (Stable)</span>
+                            <span class="text-indigo-400">⚡</span> <span>Long-Play Engine v3.2 (Final)</span>
                         </div>
                     </div>
                 </div>
@@ -280,10 +227,6 @@
     </div>
 
     <script>
-        // VARIABLE GLOBAL (se carga desde localStorage)
-        let apiKey = ""; 
-        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"; // Modelo definido constante
-
         const SONGS = {
             'minuet': { 
                 title: "Minueto en Sol (Bach)", 
@@ -307,44 +250,85 @@
                 title: "Escala Do Mayor", 
                 subtitle: "Técnica - 2 Octavas", 
                 tempo: 80, beats: 4, key: "C", time: "4/4", 
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |` 
+                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |\n[V:2] !5!C, !4!D, !3!E, !2!F, | !1!G, !2!A, !1!B, !1!C | !1!C !1!B, !2!A, !1!G, | !2!F, !3!E, !4!D, !5!C, |\nw: Do Re Mi Fa | Sol La Si Do | Do Si La Sol | Fa Mi Re Do |` 
             },
             'ode_joy': { 
                 title: "Oda a la Alegría", 
                 subtitle: "Beethoven - Melodía Principal", 
                 tempo: 120, beats: 4, key: "G", time: "4/4", 
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |` 
+                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\nV:2 bass\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !1!G,4 !2!D,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Sol Re |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !2!D,4 !1!G,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Re Sol |` 
+            },
+            'fur_elise_theme': {
+                title: "Für Elise (tema inicial)",
+                subtitle: "L. v. Beethoven - Beginner Theme",
+                tempo: 96, beats: 3, key: "Am", time: "3/8",
+                abc: `X:1\nT:Für Elise (tema inicial) - Easy\nM:3/8\nL:1/8\nQ:1/4=96\nK:Am\nV:1 treble\nV:2 bass\n[V:1] !3!E !4!D !3!E | !4!D !3!E !5!B | !4!D !3!C !2!A | !2!A2 z |\nw: Mi Re Mi | Re Mi Si | Re Do La | La |\n[V:1] !3!C !2!E !3!A | !3!B !3!E !4!G | !4!B !3!A !2!E | !2!A2 z |\nw: Do Mi La | Si Mi Sol | Si La Mi | La |\n[V:2] !5!A,2 !1!E2 !2!A2 | !5!E,2 !1!E2 !2!^G2 | !5!A,2 !1!E2 !2!A2 | z6 |\nw: La Mi La | Mi Mi Sol# | La Mi La |\n[V:2] z6 | !5!E,2 !1!E2 !2!^G2 | !5!A,2 !1!E2 !2!A2 | z6 |\nw: Mi Mi Sol# | La Mi La |`
+            },
+            'bach_minuet_g_simple': {
+                title: "Minueto en Sol (simplificado)",
+                subtitle: "J.S. Bach - Easy Melody",
+                tempo: 108, beats: 3, key: "G", time: "3/4",
+                abc: `X:1\nT:Minueto en Sol - Easy\nM:3/4\nL:1/8\nQ:1/4=108\nK:G\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !1!G2 !2!A2 | !3!B2 !4!c2 !5!d2 | !4!c2 !3!B2 !2!A2 | !1!G6 |\nw: Re Sol La | Si Do Re | Do Si La | Sol |\n[V:1] !3!B2 !4!c2 !5!d2 | !5!e2 !4!d2 !3!c2 | !3!B2 !2!A2 !1!G2 | !1!G6 |\nw: Si Do Re | Mi Re Do | Si La Sol | Sol |\n[V:2] !1!G,2 !2!B,2 !1!d2 | !1!g2 !1!d2 !2!B,2 | !3!C2 !2!D2 !1!D,2 | !1!G,6 |\nw: Sol Si Re | Sol Re Si | Do Re Re | Sol |\n[V:2] !1!G,2 !1!G,2 !1!G,2 | !3!C2 !2!D2 !1!D,2 | !1!G,2 !2!D,2 !1!G,,2 | !1!G,,6 |\nw: Sol Sol Sol | Do Re Re | Sol Re Sol | Sol |`
+            },
+            'mozart_ah_vous_var1': {
+                title: "Ah, vous dirai-je, Maman (var. fácil)",
+                subtitle: "W.A. Mozart - Tema con variación simple",
+                tempo: 104, beats: 4, key: "C", time: "4/4",
+                abc: `X:1\nT:Ah, vous dirai-je, Maman - Easy Var\nM:4/4\nL:1/8\nQ:1/4=104\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !1!C2 !5!G2 !5!G2 | !6!A2 !6!A2 !5!G4 |\nw: Do Do Sol Sol | La La Sol |\n[V:1] !4!F2 !4!F2 !3!E2 !3!E2 | !2!D2 !2!D2 !1!C4 |\nw: Fa Fa Mi Mi | Re Re Do |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !2!F,2 !1!C,2 !3!E,4 |\nw: Do Mi Do Mi | Fa Do Mi |\n[V:2] !2!F,2 !1!A,2 !1!C2 !1!A,2 | !1!G,2 !2!F,2 !3!E,4 |\nw: Fa La Do La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |`
+            },
+            'schumann_melody': {
+                title: "Melodía Op.68 nº1",
+                subtitle: "R. Schumann - Album para la Juventud (Easy)",
+                tempo: 84, beats: 4, key: "C", time: "4/4",
+                abc: `X:1\nT:Schumann - Melodía (Easy)\nM:4/4\nL:1/8\nQ:1/4=84\nK:C\nV:1 treble\nV:2 bass\n[V:1] !3!E2 !4!F2 !5!G4 | !5!G2 !4!F2 !3!E4 |\nw: Mi Fa Sol | Sol Fa Mi |\n[V:1] !2!D2 !3!E2 !4!F4 | !4!F2 !3!E2 !2!D4 |\nw: Re Mi Fa | Fa Mi Re |\n[V:1] !3!E2 !2!D2 !1!C4 | !1!C2 z2 !2!D2 !3!E2 | !3!E8 |\nw: Mi Re Do | Do Re Mi | Mi |\n[V:2] !1!C,2 !1!C,2 !1!B,,2 !1!B,,2 | !1!A,,2 !2!A,,2 !1!G,,4 |\nw: Do Do Si Si | La La Sol |\n[V:2] !2!F,,2 !1!F,,2 !2!D,,2 !1!D,,2 | !1!G,,2 !1!G,,2 !1!G,,4 |\nw: Fa Fa Re Re | Sol Sol Sol |\n[V:2] !1!C,2 !2!B,,2 !3!A,,4 | !3!A,,2 !2!G,,2 !1!F,,2 !1!G,,2 | !1!C,8 |\nw: Do Si La | La Sol Fa Sol | Do |`
+            },
+            'satie_gymno1_theme': {
+                title: "Gymnopédie nº1 (tema fácil)",
+                subtitle: "E. Satie - Easy Theme",
+                tempo: 72, beats: 3, key: "Dm", time: "3/4",
+                abc: `X:1\nT:Gymnopédie No.1 - Easy\nM:3/4\nL:1/8\nQ:1/4=72\nK:Dm\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !3!F2 !4!A2 | !4!A2 !3!F2 !2!E2 | !2!D2 !1!C2 !2!D2 | !2!D6 |\nw: Re Fa La | La Fa Mi | Re Do Re | Re |\n[V:1] !3!F2 !4!A2 !5!d2 | !5!d2 !4!A2 !3!G2 | !3!F2 !2!E2 !2!D2 | !2!D6 |\nw: Fa La Re | Re La Sol | Fa Mi Re | Re |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |`
+            },
+            'tchaikovsky_morning_theme': {
+                title: "Morning Op.39 (tema fácil)",
+                subtitle: "P.I. Tchaikovsky - Album para la Juventud (Easy)",
+                tempo: 92, beats: 4, key: "G", time: "4/4",
+                abc: `X:1\nT:Tchaikovsky - Morning (Easy)\nM:4/4\nL:1/8\nQ:1/4=92\nK:G\nV:1 treble\nV:2 bass\n[V:1] !1!G2 !2!A2 !3!B2 !4!c2 | !5!d4 !4!c2 !3!B2 |\nw: Sol La Si Do | Re Do Si |\n[V:1] !2!A2 !1!G2 !2!A2 !3!B2 | !3!B4 z4 |\nw: La Sol La Si | Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!A4 !1!G4 |\nw: Do Si La Sol | La Sol |\n[V:2] !1!G,2 !3!E,2 !2!D,2 !1!C,2 | !2!B,,4 !1!C,2 !2!D,2 |\nw: Sol Mi Re Do | Si Do Re |\n[V:2] !1!C,2 !2!B,,2 !1!A,,2 !1!G,,2 | !1!G,,4 z4 |\nw: Do Si La Sol | Sol |\n[V:2] !3!E,2 !2!G,2 !1!C,2 !2!B,,2 | !1!A,,4 !1!G,,4 |\nw: Mi Sol Do Si | La Sol |`
+            },
+            'burgmuller_arabesque_simple': {
+                title: "Arabesque Op.100 nº2 (simplificada)",
+                subtitle: "F. Burgmüller - Pattern Easy",
+                tempo: 112, beats: 2, key: "Am", time: "2/4",
+                abc: `X:1\nT:Burgmuller - Arabesque (Easy)\nM:2/4\nL:1/8\nQ:1/4=112\nK:Am\nV:1 treble\nV:2 bass\n[V:1] !1!A !2!C !3!E !5!a | !5!a !3!E !2!C !1!A |\nw: La Do Mi La | La Mi Do La |\n[V:1] !1!G !2!B !3!E !5!g | !5!g !3!E !2!B !1!G |\nw: Sol Si Mi Sol | Sol Mi Si Sol |\n[V:1] !1!F !2!A !3!C !5!f | !5!f !3!C !2!A !1!F |\nw: Fa La Do Fa | Fa Do La Fa |\n[V:1] !1!E !2!G !3!B !5!e | !5!e !3!B !2!G !1!E |\nw: Mi Sol Si Mi | Mi Si Sol Mi |\n[V:2] !1!A,2 !1!A,2 | !1!A,2 z2 |\nw: La La | La |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |\n[V:2] !2!F,2 !2!F,2 | !2!F,2 z2 |\nw: Fa Fa | Fa |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |`
+            },
+            'clementi_sonatina36_1_theme': {
+                title: "Sonatina Op.36 nº1 (tema fácil)",
+                subtitle: "M. Clementi - Opening Theme (Easy)",
+                tempo: 120, beats: 4, key: "C", time: "4/4",
+                abc: `X:1\nT:Clementi - Sonatina Op.36 No.1 (Easy)\nM:4/4\nL:1/8\nQ:1/4=120\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !4!F2 | !5!G4 !4!F2 !3!E2 |\nw: Do Re Mi Fa | Sol Fa Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !3!E4 z4 |\nw: Re Do Re Mi | Mi |\n[V:1] !3!E2 !4!F2 !5!G2 !6!A2 | !5!G4 !4!F2 !3!E2 |\nw: Mi Fa Sol La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |\n[V:2] !2!F,2 !1!A,2 !2!F,2 !1!A,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Fa La Fa La | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |`
+            },
+            'chopin_prelude28_4_theme': {
+                title: "Preludio Op.28 nº4 (tema fácil)",
+                subtitle: "F. Chopin - Cantabile Easy Line",
+                tempo: 60, beats: 4, key: "Em", time: "4/4",
+                abc: `X:1\nT:Chopin - Prelude Op.28 No.4 (Easy)\nM:4/4\nL:1/8\nQ:1/4=60\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 |\nw: Si La Sol Mi | Fa# Mi Sol Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!F2 !1!E2 z4 |\nw: Do Si La Sol | Fa# Mi |\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 | !3!B8 |\nw: Si La Sol Mi | Fa# Mi Sol Si | Si |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 |\nw: Mi Sol Si Sol | Mi Sol Si Sol |\n[V:2] !3!E,2 !2!A,2 !1!C2 !2!A,2 | !3!E,2 !2!A,2 !1!C2 !2!A,2 |\nw: Mi La Do La | Mi La Do La |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,8 |\nw: Mi Sol Si Sol | Mi Sol Si Sol | Mi |`
+            },
+            'bartok_mikrokosmos_easy': {
+                title: "Mikrokosmos (ejercicio fácil)",
+                subtitle: "B. Bartók - Coordinación y ritmo (Easy)",
+                tempo: 96, beats: 4, key: "C", time: "4/4",
+                abc: `X:1\nT:Bartok - Mikrokosmos (Easy)\nM:4/4\nL:1/8\nQ:1/4=96\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !2!D2 | !1!C2 !1!C2 z4 |\nw: Do Re Mi Re | Do Do |\n[V:1] !2!D2 !3!E2 !4!F2 !3!E2 | !2!D2 !2!D2 z4 |\nw: Re Mi Fa Mi | Re Re |\n[V:1] !3!E2 !4!F2 !5!G2 !4!F2 | !3!E2 !3!E2 z4 |\nw: Mi Fa Sol Fa | Mi Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !1!C8 |\nw: Re Do Re Mi | Do |\n[V:2] !1!C,2 !2!B,,2 !3!A,,2 !2!B,,2 | !1!C,2 !1!C,2 z4 |\nw: Do Si La Si | Do Do |\n[V:2] !2!B,,2 !3!A,,2 !4!G,,2 !3!A,,2 | !2!B,,2 !2!B,,2 z4 |\nw: Si La Sol La | Si Si |\n[V:2] !3!A,,2 !4!G,,2 !5!F,,2 !4!G,,2 | !3!A,,2 !3!A,,2 z4 |\nw: La Sol Fa Sol | La La |\n[V:2] !2!B,,2 !1!C,2 !2!B,,2 !3!A,,2 | !1!C,8 |\nw: Si Do Si La | Do |`
             }
         };
 
         const noteNamesMap = { "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B" };
 
-        let state = { songId: 'minuet', tempo: 110, fingers: true, cipher: 'lat', isPlaying: false, isMetro: false, audioCtx: null, generatedSong: null, currentOption: null };
+        let state = { songId: 'minuet', tempo: 110, fingers: true, cipher: 'lat', isPlaying: false, isMetro: false, audioCtx: null };
         let abcInstance, synthControl, timingCallbacks, metronomeTimer;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Cargar API Key
-            apiKey = localStorage.getItem('pianoclass_gemini_key') || "";
-            if(apiKey) {
-                document.getElementById('api-status-dot').classList.replace('bg-slate-300', 'bg-emerald-400');
-                document.getElementById('api-key-input').value = apiKey;
-            }
-
             loadSong('minuet');
             setupListeners();
         });
-
-        function saveApiKey() {
-            const input = document.getElementById('api-key-input').value.trim();
-            if(input) {
-                apiKey = input;
-                localStorage.setItem('pianoclass_gemini_key', apiKey);
-                document.getElementById('api-status-dot').classList.replace('bg-slate-300', 'bg-emerald-400');
-                showNotification("API Key guardada correctamente");
-            } else {
-                showNotification("La API Key no puede estar vacía");
-            }
-        }
 
         function setupListeners() {
             document.getElementById('song-selector').addEventListener('change', (e) => loadSong(e.target.value));
@@ -365,29 +349,26 @@
             };
         }
 
-        // --- LÓGICA CENTRALIZADA ABC ---
         function getEffectiveAbc(song){
           let abc = song.abc;
-
-          // Tempo: Forzar tempo actual
+          
+          // Tempo actual
           if (abc.includes('Q:')) abc = abc.replace(/Q:1\/4=\d+/, `Q:1/4=${state.tempo}`);
           else abc = abc.replace('K:', `Q:1/4=${state.tempo}\nK:`);
-
+          
           // Digitación
           if(!state.fingers) abc = abc.replace(/![1-5]!/g, "");
-
-          // Cifrado y Letras (w:)
+          
+          // Cifrado/Lyrics
           if(state.cipher === 'off') {
-            // Elimina líneas que empiezan por w:
             abc = abc.split('\n').filter(l => !l.trim().startsWith('w:')).join('\n');
           } else if (state.cipher === 'ang') {
-            // Convierte latino a anglosajón
             abc = abc.split('\n').map(line => {
               if (line.trim().startsWith('w:')) {
                 let content = line.replace(/^\s*w:\s*/, '');
                 const sortedKeys = Object.keys(noteNamesMap).sort((a,b) => b.length - a.length);
                 sortedKeys.forEach(k => {
-                  const regex = new RegExp(k + '(?![a-z])', 'g');
+                  const regex = new RegExp(k + '(?![a-záéíóú])', 'gi');
                   content = content.replace(regex, noteNamesMap[k]);
                 });
                 return 'w: ' + content;
@@ -395,7 +376,6 @@
               return line;
             }).join('\n');
           }
-          // Si es 'lat', dejamos el original (asumiendo que viene en latino)
           return abc;
         }
 
@@ -403,84 +383,25 @@
             if (pitch === undefined || pitch === null) return "";
             const namesAng = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
             const namesLat = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
-            // Cálculo de índice de nota (0-11) y octava
             const noteIndex = ((pitch % 12) + 12) % 12;
             const octave = Math.floor(pitch / 12) - 1; 
-            
             const noteName = (lang === 'ang') ? namesAng[noteIndex] : namesLat[noteIndex];
             return `${noteName}${octave}`;
         }
 
-        function toggleAiGenerator() { document.getElementById('ai-generator-overlay').classList.toggle('hidden'); }
-
-        function selectAiOption(option, element) {
-            state.currentOption = option;
-            document.querySelectorAll('.ai-option-btn').forEach(btn => btn.classList.remove('selected'));
-            element.classList.add('selected');
-            const genBtn = document.getElementById('main-gen-btn');
-            genBtn.disabled = false; genBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-
-        async function callGemini(promptText) {
-            if (!apiKey) {
-                showNotification("Error: Configura tu API Key primero (icono 💾)");
-                return null;
-            }
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-            
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
-                    });
-                    const data = await response.json();
-                    if (data.error) throw new Error(data.error.message);
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text;
-                } catch (error) {
-                    if (i === 4) {
-                        showNotification("Error IA: " + error.message);
-                        return null;
-                    }
-                    const delay = Math.pow(2, i) * 1000;
-                    await new Promise(r => setTimeout(r, delay));
-                }
-            }
-        }
-
-        async function generateExercise() {
-            if (!state.currentOption) return;
-            const btn = document.getElementById('main-gen-btn'), loader = document.getElementById('gen-btn-loader'), 
-                  text = document.getElementById('gen-btn-text'), paperLoading = document.getElementById('paper-loading');
-            btn.disabled = true; loader.classList.remove('hidden'); text.classList.add('hidden'); paperLoading.classList.remove('hidden');
-
-            const prompt = `Genera un ejercicio de piano (8 compases) en formato ABC basado en: "${state.currentOption}".
-REGLAS: X:1, T:Composición IA, M:4/4, L:1/4, K:C. Notas con digitación !1!-!5!. Incluye línea 'w:' con nombres Do, Re, Mi... 
-Devuelve solo el código ABC limpio.`;
-
-            let abcCode = await callGemini(prompt);
-            if (abcCode) {
-                abcCode = abcCode.replace(/```[a-z]*\n?/gi, '').replace(/```/g, '').trim();
-                state.generatedSong = { title: "Composición IA", subtitle: `Estilo: ${state.currentOption}`, tempo: 100, beats: 4, key: "C", time: "4/4", abc: abcCode };
-                loadSong('generated');
-                toggleAiGenerator();
-                showNotification("¡Obra generada con éxito!");
-            }
-            btn.disabled = false; loader.classList.add('hidden'); text.classList.remove('hidden'); paperLoading.classList.add('hidden');
-        }
-
         function loadSong(id) {
             stopAll();
-            let song = (id === 'generated' && state.generatedSong) ? state.generatedSong : (SONGS[id] || SONGS['minuet']);
+            let song = SONGS[id] || SONGS['minuet'];
             state.songId = id;
             document.getElementById('song-meta').innerText = song.subtitle || "";
             updateTempo(0, song.tempo);
             document.getElementById('time-sig').innerText = song.time;
             document.getElementById('key-sig').innerText = song.key;
+            
             const beatContainer = document.getElementById('beat-container');
             beatContainer.innerHTML = '';
-            for(let i=0; i<(song.beats || 4); i++) {
+            const beats = song.beats || 4;
+            for(let i=0; i<beats; i++) {
                 const dot = document.createElement('div');
                 dot.className = `beat-dot`;
                 dot.id = `beat-${i+1}`;
@@ -490,13 +411,10 @@ Devuelve solo el código ABC limpio.`;
         }
 
         function renderScore() {
-            let song = state.songId === 'generated' ? state.generatedSong : SONGS[state.songId];
-            // Usamos la lógica centralizada
+            let song = SONGS[state.songId];
             let abc = getEffectiveAbc(song);
-
             abcInstance = ABCJS.renderAbc("paper", abc, {
                 responsive: 'resize', add_classes: true, staffwidth: 800, scale: 1.1,
-                // Click listener corregido usando el evento pasado por ABCjs
                 clickListener: (abcElem, tuneNumber, classes, analysis, drag, mouseEvent) => {
                   if (abcElem && abcElem.el_type === "note") showTooltip(mouseEvent, abcElem.pitches?.[0]?.pitch);
                 }
@@ -504,11 +422,16 @@ Devuelve solo el código ABC limpio.`;
         }
 
         function updateTempo(delta, exact = null) {
-            state.tempo = exact ? exact : Math.max(40, Math.min(200, state.tempo + delta));
+            state.tempo = exact ? exact : Math.max(40, Math.min(220, state.tempo + delta));
             document.getElementById('tempo-display').innerText = state.tempo;
             document.getElementById('tempo-slider').value = state.tempo;
-            if(state.isPlaying || state.isMetro) stopAll();
-            else renderScore();
+            if(state.isPlaying || state.isMetro) {
+                const wasPlaying = state.isPlaying;
+                stopAll();
+                if(wasPlaying) playPiano();
+            } else {
+                renderScore();
+            }
         }
 
         function initAudio() {
@@ -518,46 +441,28 @@ Devuelve solo el código ABC limpio.`;
 
         async function playPiano() {
             if (state.isPlaying) { stopAll(); return; }
-            
-            // Gestión de conflicto con Metrónomo
-            if(state.isMetro) {
-                stopAll();
-                showNotification("Metrónomo detenido. Iniciando reproducción.");
-                // Pequeña pausa para evitar solapamiento de audio
-                await new Promise(r => setTimeout(r, 100));
-            }
-
+            if(state.isMetro) { stopAll(); }
             initAudio(); state.isPlaying = true;
             document.getElementById('play-btn').innerHTML = '<span>⏸ Pausar</span>';
-
             if (ABCJS.synth.supportsAudio()) {
                 const synth = new ABCJS.synth.CreateSynth();
-                let song = state.songId === 'generated' ? state.generatedSong : SONGS[state.songId];
-                
-                // CRÍTICO: Usar el mismo ABC procesado que se ve en pantalla
+                let song = SONGS[state.songId];
                 const effectiveAbc = getEffectiveAbc(song);
-
                 const audioObj = ABCJS.renderAbc("paper", effectiveAbc, { responsive: 'resize' })[0];
                 timingCallbacks = new ABCJS.TimingCallbacks(audioObj, {
                     qpm: state.tempo,
                     eventCallback: (ev) => {
-                        // Limpiar highlights previos
                         document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
                         document.querySelectorAll('.lyric-highlight').forEach(el => el.classList.remove('lyric-highlight'));
-
                         if (ev && ev.elements) {
                             ev.elements.forEach(set => set.forEach(el => {
-                                // Diferenciar nota de letra
                                 const isLyric = el.classList.contains('abcjs-lyric');
-                                if(isLyric) {
-                                    el.classList.add('lyric-highlight'); // Clase limpia para texto
-                                } else {
-                                    el.classList.add('abcjs-highlight'); // Clase SVG para notas
-                                }
+                                if(isLyric) el.classList.add('lyric-highlight'); 
+                                else el.classList.add('abcjs-highlight'); 
                             }));
                         }
                     },
-                    beatCallback: (beatNumber) => visualizeBeat((beatNumber % (song.beats || 4)) + 1)
+                    beatCallback: (beatNumber) => visualizeBeat((beatNumber % (SONGS[state.songId].beats || 4)) + 1)
                 });
                 await synth.init({ visualObj: audioObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
                 await synth.prime(); synth.start(); timingCallbacks.start(); synthControl = { synth };
@@ -568,7 +473,7 @@ Devuelve solo el código ABC limpio.`;
             if(state.isMetro) { stopAll(); return; }
             stopAll(); initAudio(); state.isMetro = true;
             document.getElementById('metro-btn').classList.add('bg-indigo-500', 'text-white');
-            let song = state.songId === 'generated' ? state.generatedSong : SONGS[state.songId], currentBeat = 0, nextTime = state.audioCtx.currentTime;
+            let song = SONGS[state.songId], currentBeat = 0, nextTime = state.audioCtx.currentTime;
             function schedule() {
                 if(!state.isMetro) return;
                 while (nextTime < state.audioCtx.currentTime + 0.1) {
@@ -584,7 +489,7 @@ Devuelve solo el código ABC limpio.`;
 
         function playClick(time, strong) {
             const osc = state.audioCtx.createOscillator(), gain = state.audioCtx.createGain();
-            osc.frequency.value = strong ? 1000 : 600; gain.gain.setValueAtTime(0.2, time); 
+            osc.frequency.value = strong ? 1000 : 600; gain.gain.setValueAtTime(0.15, time); 
             gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05); osc.connect(gain); 
             gain.connect(state.audioCtx.destination); osc.start(time); osc.stop(time + 0.05);
         }
@@ -625,9 +530,7 @@ Devuelve solo el código ABC limpio.`;
             if(!e || pitch === undefined || pitch === null) return;
             const tooltip = document.getElementById('note-tooltip');
             const lang = (state.cipher === 'ang') ? 'ang' : 'lat';
-            
             tooltip.innerText = pitchToNoteName(pitch, lang);
-            
             tooltip.style.display = 'block'; 
             const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
             const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
