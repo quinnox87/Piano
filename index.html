@@ -1,1081 +1,544 @@
 <!DOCTYPE html>
-
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>PianoClass: Lumina Edition</title>
-
     <!-- ABCjs para partituras -->
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/abcjs/6.2.2/abcjs-basic-min.js"></script>
-
     <!-- Tailwind CSS -->
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <!-- Fonts -->
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-
-
     <script>
-
         tailwind.config = {
-
             theme: {
-
                 extend: {
-
-                    fontFamily: {
-
-                        sans: ['Inter', 'sans-serif'],
-
-                    },
-
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-
                         lumina: {
-
                             bg: '#F8FAFC',
-
                             panel: '#FFFFFF',
-
                             border: '#E2E8F0',
-
                             text: '#334155',
-
                             secondary: '#64748B',
-
                             accent: '#818CF8',
-
                             success: '#34D399',
-
                             danger: '#F87171',
-
                         }
-
                     }
-
                 }
-
             }
-
         }
-
     </script>
 
-
-
     <style>
+        body { background-color: #F8FAFC; color: #334155; transition: background-color 0.5s ease; -webkit-tap-highlight-color: transparent; }
+        .elegant-card { background: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-radius: 1rem; }
 
-        body {
-
-            background-color: #F8FAFC;
-
-            color: #334155;
-
-            transition: background-color 0.5s ease;
-
-            -webkit-tap-highlight-color: transparent;
-
-        }
-
-
-
-        .elegant-card {
-
-            background: #FFFFFF;
-
-            border: 1px solid #E2E8F0;
-
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-
-            border-radius: 1rem;
-
-            transition: all 0.3s ease;
-
-        }
-
-
-
-        @media (min-width: 768px) {
-
-            .elegant-card { border-radius: 1.25rem; }
-
-        }
-
-
-
-        /* ESTILOS ABCJS */
-
+        /* ABCJS VISUALS */
         .abcjs-note { fill: #0F172A !important; transition: fill 0.1s ease; }
-
         .abcjs-staff { stroke: #475569 !important; stroke-width: 1.2; }
-
         
-
-        /* Resaltado de notas durante reproducción */
-
-        .abcjs-highlight { 
-
-            fill: #EF4444 !important; 
-
-            stroke: #EF4444 !important; 
-
-            filter: drop-shadow(0px 0px 4px rgba(239, 68, 68, 0.6)); 
-
+        /* Neon Highlights */
+        .highlight-right { 
+            fill: #FF0033 !important; 
+            stroke: #FF0033 !important; 
+            filter: drop-shadow(0px 0px 5px rgba(255, 0, 51, 0.8)); 
+        }
+        
+        .highlight-left { 
+            fill: #0044FF !important; 
+            stroke: #0044FF !important; 
+            filter: drop-shadow(0px 0px 6px rgba(0, 68, 255, 0.7)); 
         }
 
-        
-
-        /* Resaltado de cifrado/lyric */
-
-        .lyric-highlight { 
-
-            fill: #4F46E5 !important; 
-
-            font-weight: 800;
-
-        }
-
-        
-
+        .lyric-highlight { fill: #4F46E5 !important; font-weight: 800; }
         .abcjs-lyric { fill: #64748B; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; }
-
-        .abcjs-fingering { fill: #EF4444; font-weight: 800; font-size: 10px; }
-
-
-
-        #paper { background: #FFFFFF; width: 100%; border-radius: 0.75rem; }
+        .abcjs-fingering { fill: #EF4444 !important; font-weight: 800; font-size: 10px; }
 
         #paper svg { width: 100%; height: auto; display: block; margin: 0 auto; }
 
-
-
         .btn-lumina {
-
-            display: inline-flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            padding: 0.75rem 1rem;
-
-            border-radius: 0.75rem;
-
-            font-weight: 600;
-
-            font-size: 0.75rem;
-
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-            letter-spacing: 0.02em;
-
-            cursor: pointer;
-
-            user-select: none;
-
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0.75rem 1rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.75rem;
+            transition: all 0.2s ease; cursor: pointer; user-select: none;
         }
-
-
-
         .btn-primary { background: linear-gradient(135deg, #818CF8, #6366F1); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2); }
-
         .btn-ghost { background-color: #F1F5F9; color: #475569; border: 1px solid #E2E8F0; }
-
         .btn-stop { background-color: #FEE2E2; color: #EF4444; border: 1px solid #FCA5A5; }
 
-
-
         .beat-dot { transition: all 0.15s; background-color: #E2E8F0; width: 10px; height: 10px; border-radius: 50%; }
-
         .beat-active { background-color: #EF4444 !important; box-shadow: 0 0 10px rgba(239, 68, 68, 0.6); transform: scale(1.2); }
 
-
-
-        #notification-box {
-
-            position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-
-            padding: 0.75rem 1.5rem; border-radius: 0.75rem; background: #1E293B; color: white;
-
-            z-index: 100; display: none; width: 90%; max-width: 400px; text-align: center;
-
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out;
-
+        #fingering-modal, #cipher-modal {
+            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; padding: 1.5rem;
         }
 
-
-
-        @keyframes slideIn { from { transform: translate(-50%, 100%); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-
-
-
-        #note-tooltip {
-
-            position: absolute; display: none; background: #1E293B; color: white;
-
-            padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600;
-
-            pointer-events: none; z-index: 50; transform: translate(-50%, -150%);
-
-        }
-
+        .piano-container { position: relative; display: flex; height: 100px; width: 100%; max-width: 400px; margin: 0 auto; background: white; border: 1px solid #e2e8f0; border-radius: 0 0 6px 6px; overflow: hidden; }
+        .key-white { flex: 1; border-right: 1px solid #e2e8f0; background: white; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 6px; z-index: 1; }
+        .key-black { position: absolute; width: 8.5%; height: 60%; background: #1e293b; border-radius: 0 0 3px 3px; z-index: 2; }
     </style>
-
 </head>
+<body class="antialiased min-h-screen pb-12">
 
-<body class="antialiased min-h-screen pb-6 md:pb-12">
+    <div id="note-tooltip" class="absolute hidden bg-slate-900 text-white px-2 py-1 rounded text-[10px] font-bold z-50 pointer-events-none transform -translate-x-1/2 -translate-y-full">Nota</div>
+    <div id="notification-box" role="status" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden bg-slate-800 text-white p-4 rounded-xl z-[100] text-center shadow-2xl"></div>
 
-
-
-    <div id="note-tooltip">Nota</div>
-
-    <div id="notification-box"></div>
-
-
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8 w-full">
-
-        
-
-        <header class="flex flex-col md:flex-row justify-between items-center mb-6 md:mb-10 border-b border-slate-200 pb-6 md:pb-8 gap-4">
-
-            <div class="text-center md:text-left w-full md:w-auto">
-
-                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900">
-
-                    Piano<span class="text-indigo-500">Class</span>
-
-                </h1>
-
-                <p class="text-slate-500 font-medium text-sm md:text-base mt-0.5">Lumina: Sesión de Larga Duración</p>
-
+    <!-- Modal de Digitación -->
+    <div id="fingering-modal" onclick="this.style.display='none'">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-slate-900">Guía Técnica de Dedos</h3>
+                    <button onclick="document.getElementById('fingering-modal').style.display='none'" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+                </div>
+                <div class="grid grid-cols-2 gap-8 mb-6">
+                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-l-blue-700 border border-slate-200">
+                        <span class="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-4 block text-center">Mano Izquierda (LH)</span>
+                        <ul class="text-sm space-y-1 text-slate-600">
+                            <li class="flex justify-between"><span>Pulgar</span><strong>1</strong></li>
+                            <li class="flex justify-between"><span>Índice</span><strong>2</strong></li>
+                            <li class="flex justify-between"><span>Corazón</span><strong>3</strong></li>
+                            <li class="flex justify-between"><span>Anular</span><strong>4</strong></li>
+                            <li class="flex justify-between"><span>Meñique</span><strong>5</strong></li>
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border-l-4 border-l-red-600 border border-slate-200">
+                        <span class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-4 block text-center">Mano Derecha (RH)</span>
+                        <ul class="text-sm space-y-1 text-slate-600">
+                            <li class="flex justify-between"><strong>1</strong><span>Pulgar</span></li>
+                            <li class="flex justify-between"><strong>2</strong><span>Índice</span></li>
+                            <li class="flex justify-between"><strong>3</strong><span>Corazón</span></li>
+                            <li class="flex justify-between"><strong>4</strong><span>Anular</span></li>
+                            <li class="flex justify-between"><strong>5</strong><span>Meñique</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-[11px] text-indigo-700 text-center font-medium">
+                    Código de colores: Mano Derecha en <span class="text-red-600 font-bold">Rojo</span> • Mano Izquierda en <span class="text-blue-700 font-bold">Azul Oscuro</span>.
+                </div>
+                <button onclick="document.getElementById('fingering-modal').style.display='none'" class="btn-lumina btn-primary w-full mt-6 uppercase tracking-widest text-[10px]">Cerrar Manual</button>
             </div>
-
-            
-
-            <div class="flex items-center justify-center md:justify-end gap-2 md:gap-4 w-full md:w-auto">
-
-                <div class="bg-indigo-50 border border-indigo-100 px-3 md:px-5 py-2 rounded-xl shadow-sm flex items-center gap-2 md:gap-3">
-
-                    <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-
-                    <span class="text-[10px] md:text-xs font-bold text-indigo-700 uppercase tracking-widest">Resistencia Cognitiva</span>
-
-                </div>
-
-            </div>
-
-        </header>
-
-
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-
-            
-
-            <div class="lg:col-span-3 space-y-4 md:space-y-6">
-
-                
-
-                <div class="elegant-card p-4 md:p-6">
-
-                    <label class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 md:mb-4 block">Repertorio Maestro</label>
-
-                    <select id="song-selector" class="w-full bg-slate-50 text-slate-700 text-xs md:text-sm font-semibold py-2.5 px-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-200 transition-all cursor-pointer">
-
-                        <option value="minuet">Minueto en Sol (Bach) - Completo</option>
-
-                        <option value="preludio_bach">Preludio en Do (Bach BWV 846)</option>
-
-                        <option value="comptine">Comptine d'un autre été (Tiersen)</option>
-
-                        <option value="scale_c">Escala Do Mayor - 2 Octavas</option>
-
-                        <option value="ode_joy">Oda a la Alegría - Beethoven</option>
-
-                        <option value="bach_minuet_g_simple">Minueto en Sol (simplificado) - Bach</option>
-
-                        <option value="mozart_ah_vous_var1">Ah, vous dirai-je, Maman (var. fácil) - Mozart</option>
-
-                        <option value="schumann_melody">Melodía Op.68 nº1 - Schumann</option>
-
-                        <option value="satie_gymno1_theme">Gymnopédie nº1 (tema fácil) - Satie</option>
-
-                        <option value="tchaikovsky_morning_theme">Morning Op.39 (tema fácil) - Tchaikovsky</option>
-
-                        <option value="burgmuller_arabesque_simple">Arabesque Op.100 nº2 (simplificada) - Burgmüller</option>
-
-                        <option value="clementi_sonatina36_1_theme">Sonatina Op.36 nº1 (tema fácil) - Clementi</option>
-
-                        <option value="chopin_prelude28_4_theme">Preludio Op.28 nº4 (tema fácil) - Chopin</option>
-
-                        <option value="bartok_mikrokosmos_easy">Mikrokosmos (ejercicio fácil) - Bartók</option>
-
-                    </select>
-
-                    <div id="song-meta" class="mt-3 text-[10px] text-slate-400 italic">Cargando repertorio...</div>
-
-                </div>
-
-
-
-                <div class="elegant-card p-4 md:p-6">
-
-                    <h3 class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Controles</h3>
-
-                    <div class="space-y-3">
-
-                        <button id="play-btn" class="btn-lumina btn-primary w-full text-white text-xs md:text-sm">▶ Iniciar Práctica</button>
-
-                        <div class="grid grid-cols-2 gap-2">
-
-                            <button id="stop-btn" class="btn-lumina btn-stop text-[10px]">⏹ Parar</button>
-
-                            <button id="metro-btn" class="btn-lumina btn-ghost text-[10px]">⌛ Metr.</button>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mt-6 pt-4 border-t border-slate-100">
-
-                        <div class="flex justify-between items-center mb-3">
-
-                            <span class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase">Tempo (BPM)</span>
-
-                            <span id="tempo-display" class="text-lg md:text-xl font-bold text-indigo-600">110</span>
-
-                        </div>
-
-                        <input type="range" id="tempo-slider" min="40" max="200" value="110" step="10" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer">
-
-                    </div>
-
-                </div>
-
-
-
-                <div class="elegant-card p-4 md:p-6">
-
-                    <h3 class="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Asistentes</h3>
-
-                    <div class="space-y-3">
-
-                        <button id="fingering-btn" class="w-full btn-lumina btn-ghost justify-between">
-
-                            <span class="text-slate-600">Digitación</span>
-
-                            <span id="fingering-status" class="bg-indigo-100 text-indigo-600 px-2.5 py-0.5 rounded-full text-[9px] font-bold">ON</span>
-
-                        </button>
-
-                        <button id="cipher-btn" class="w-full btn-lumina btn-ghost justify-between">
-
-                            <span class="text-slate-600">Cifrado</span>
-
-                            <span id="cipher-status" class="bg-slate-200 text-slate-500 px-2.5 py-0.5 rounded-full text-[9px] font-bold">LAT</span>
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <div class="lg:col-span-9">
-
-                <div id="main-paper-container" class="elegant-card p-0 flex flex-col min-h-[500px] md:min-h-[800px] overflow-hidden relative">
-
-                    
-
-                    <div class="px-4 md:px-8 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-
-                        <div class="flex gap-2 md:gap-4" id="beat-container"></div>
-
-                        <div class="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 md:gap-2">
-
-                            <span class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-emerald-400"></span> 
-
-                            <span>Versión de Publicación</span>
-
-                        </div>
-
-                    </div>
-
-
-
-                    <div class="flex-grow p-4 md:p-12 overflow-x-auto flex flex-col items-center bg-white relative">
-
-                        <div id="paper" class="w-full max-w-4xl"></div>
-
-                    </div>
-
-
-
-                    <div class="px-4 md:px-8 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center text-[8px] md:text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-
-                        <div class="flex space-x-4 md:space-x-12">
-
-                            <div>Compás: <span id="time-sig" class="text-indigo-600 ml-1">--</span></div>
-
-                            <div>Tono: <span id="key-sig" class="text-indigo-600 ml-1">--</span></div>
-
-                        </div>
-
-                        <div class="flex items-center gap-1 opacity-60">
-
-                            <span class="text-indigo-400">⚡</span> <span>Long-Play Engine v3.2 (Final)</span>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
         </div>
-
     </div>
 
+    <!-- Modal de Cifrado -->
+    <div id="cipher-modal" onclick="this.style.display='none'">
+        <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+            <div class="p-8 text-center">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-slate-900">Guía de Cifrado y Notas</h3>
+                    <button onclick="document.getElementById('cipher-modal').style.display='none'" class="text-slate-400 hover:text-slate-600 text-xl">✕</button>
+                </div>
+                <div class="space-y-8">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4 block text-center">Escala Mayor - Do</span>
+                        <div id="guide-paper" class="flex justify-center"></div>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4 block text-center">Mapeo del Teclado</span>
+                        <div class="piano-container">
+                            <div class="key-white text-[9px] font-bold"><span>Do</span><span class="text-indigo-600">C</span></div>
+                            <div class="key-white text-[9px] font-bold"><span>Re</span><span class="text-indigo-600">D</span></div>
+                            <div class="key-white text-[9px] font-bold"><span>Mi</span><span class="text-indigo-600">E</span></div>
+                            <div class="key-white text-[9px] font-bold"><span>Fa</span><span class="text-indigo-600">F</span></div>
+                            <div class="key-white text-[9px] font-bold"><span>Sol</span><span class="text-indigo-600">G</span></div>
+                            <div class="key-white text-[9px] font-bold"><span>La</span><span class="text-indigo-600">A</span></div>
+                            <div class="key-white text-[9px] font-bold border-r-0"><span>Si</span><span class="text-indigo-600">B</span></div>
+                            <div class="key-black" style="left: 10%"></div>
+                            <div class="key-black" style="left: 24.5%"></div>
+                            <div class="key-black" style="left: 52.5%"></div>
+                            <div class="key-black" style="left: 67%"></div>
+                            <div class="key-black" style="left: 81.5%"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('cipher-modal').style.display='none'" class="btn-lumina btn-primary w-full mt-8 uppercase tracking-widest text-[10px]">Cerrar Guía</button>
+            </div>
+        </div>
+    </div>
 
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 border-b border-slate-200 pb-8 gap-4 text-center md:text-left">
+            <div>
+                <h1 class="text-4xl font-extrabold tracking-tight text-slate-900">Piano<span class="text-indigo-500">Class</span></h1>
+                <p class="text-slate-500 font-medium text-sm mt-1">Lumina Edition: Sesión Maestra</p>
+            </div>
+            <div class="bg-indigo-50 border border-indigo-100 px-5 py-2 rounded-xl flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-widest">Motor v3.8</span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar -->
+            <div class="lg:col-span-3 space-y-6">
+                
+                <div class="elegant-card p-6">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 block">Repertorio Maestro</label>
+                    <select id="song-selector" class="w-full bg-slate-50 text-slate-700 text-sm font-semibold py-3 px-4 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-200 transition-all cursor-pointer">
+                        <option value="minuet">Minueto en Sol (Bach) - Completo</option>
+                        <option value="preludio_bach">Preludio en Do (Bach BWV 846)</option>
+                        <option value="comptine">Comptine d'un autre été (Tiersen)</option>
+                        <option value="scale_c">Escala Do Mayor - 2 Octavas</option>
+                        <option value="ode_joy">Oda a la Alegría - Beethoven</option>
+                        <option value="bach_minuet_g_simple">Minueto en Sol (Bach) - Fácil</option>
+                        <option value="mozart_ah_vous_var1">Ah, vous dirai-je, Maman - Mozart</option>
+                        <option value="schumann_melody">Melodía Op.68 nº1 - Schumann</option>
+                        <option value="satie_gymno1_theme">Gymnopédie nº1 - Satie</option>
+                        <option value="tchaikovsky_morning_theme">Morning Op.39 - Tchaikovsky</option>
+                        <option value="burgmuller_arabesque_simple">Arabesque Op.100 nº2 - Burgmüller</option>
+                        <option value="clementi_sonatina36_1_theme">Sonatina Op.36 nº1 - Clementi</option>
+                        <option value="chopin_prelude28_4_theme">Preludio Op.28 nº4 - Chopin</option>
+                        <option value="bartok_mikrokosmos_easy">Mikrokosmos - Bartók</option>
+                    </select>
+                    <div id="song-meta" class="mt-3 text-[10px] text-slate-400 italic text-center italic">Cargando...</div>
+                </div>
+
+                <div class="elegant-card p-6 text-center">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Controles</h3>
+                    <div class="flex gap-2 mb-6">
+                        <button id="play-btn" class="flex-grow btn-lumina btn-primary text-white py-3 shadow-md" title="Reproducir">▶</button>
+                        <button id="pause-btn" class="flex-grow btn-lumina btn-ghost py-3 border border-slate-200" title="Pausar">⏸</button>
+                        <button id="stop-btn" class="flex-grow btn-lumina btn-stop py-3 border-none shadow-sm" title="Detener">⏹</button>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Ritmo (BPM)</span>
+                            <span id="tempo-display" class="text-sm font-black text-indigo-600">110</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-3">
+                            <button id="tempo-minus" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-600 border border-slate-200 text-lg">−</button>
+                            <span class="text-[10px] font-bold text-slate-300">+/- 10</span>
+                            <button id="tempo-plus" class="w-10 h-10 flex items-center justify-center bg-slate-100 hover:bg-slate-200 rounded-xl font-bold text-slate-600 border border-slate-200 text-lg">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="elegant-card p-6 text-center">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">Metrónomo</h3>
+                    <button id="metro-btn" class="w-full btn-lumina btn-ghost py-3 text-[10px] font-bold border border-slate-200 uppercase tracking-widest">⌛ Solo Metrónomo</button>
+                </div>
+
+                <div class="elegant-card p-6 text-center">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">Asistentes</h3>
+                    <div class="space-y-3">
+                        <div class="flex gap-2">
+                            <button id="fingering-btn" class="flex-grow btn-lumina btn-ghost justify-between">
+                                <span class="text-slate-600 font-medium">Digitación</span>
+                                <span id="fingering-status" class="bg-indigo-100 text-indigo-600 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase">ON</span>
+                            </button>
+                            <button id="fingering-guide-btn" class="btn-lumina btn-ghost px-3">📖</button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button id="cipher-btn" class="flex-grow btn-lumina btn-ghost justify-between">
+                                <span class="text-slate-600 font-medium">Cifrado</span>
+                                <span id="cipher-status" class="bg-slate-200 text-slate-500 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase">LAT</span>
+                            </button>
+                            <button id="cipher-guide-btn" class="btn-lumina btn-ghost px-3">📖</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area de Partitura -->
+            <div class="lg:col-span-9">
+                <div id="main-paper-container" class="elegant-card p-0 flex flex-col min-h-[800px] overflow-hidden relative">
+                    <div class="px-8 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <div class="flex gap-4" id="beat-container"></div>
+                        <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span> 
+                            <span>Digital Performance Engine</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow p-8 md:p-16 overflow-x-auto flex flex-col items-center bg-white relative">
+                        <div id="paper" class="w-full max-w-4xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-
         const SONGS = {
-
-            'minuet': { 
-
-                title: "Minueto en Sol (Bach)", 
-
-                subtitle: "Bach / Barroco - Estructura Completa", 
-
-                tempo: 110, beats: 3, key: "G", time: "3/4", 
-
-                abc: `X:1\nM:3/4\nL:1/8\nQ:1/4=110\nK:G\nV:1 treble\nV:2 bass\n[V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |\nw: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |\n[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !1!F!2!G !3!A!2!B !3!A!1!G | !2!A6 |\nw: Do Re Do Si La | Si Do Si La Sol | Fa# Sol La Si La Sol | La |\n[V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |\nw: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |\n[V:2] !3!E,4 !3!E,2 | !5!G,4 !5!G,2 | !1!D,4 !1!D,2 | !1!D,6 |\nw: Mi Mi | Sol Sol | Re Re | Re |` 
-
-            },
-
-            'comptine': {
-
-                title: "Comptine d'un autre été",
-
-                subtitle: "Yann Tiersen - Beginner Version",
-
-                tempo: 80, beats: 4, key: "Em", time: "4/4",
-
-                abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=80\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !1!E2 !2!G2 !3!B2 !5!e2 | !3!B2 !2!G2 !1!E4 | !1!G2 !2!B2 !3!d2 !5!g2 | !3!d2 !2!B2 !1!G4 |\nw: Mi Sol Si Mi | Si Sol Mi | Sol Si Re Sol | Re Si Sol |\n[V:1] !1!D2 !2!F2 !3!A2 !5!d2 | !3!A2 !2!F2 !1!D4 | !1!E2 !2!A2 !3!c2 !5!e2 | !3!c2 !2!A2 !1!E4 |\nw: Re Fa# La Re | La Fa# Re | Mi La Do Mi | Do La Mi |\n[V:2] !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 |\nw: Mi Si Mi Si | Mi Si Mi Si | Sol Re Sol Re | Sol Re Sol Re |\n[V:2] !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 |\nw: Re La Re La | Re La Re La | La Mi La Mi | La Mi La Mi |`
-
-            },
-
-            'preludio_bach': {
-
-                title: "Preludio en Do Mayor (BWV 846)",
-
-                subtitle: "J.S. Bach - El Clave Bien Temperado",
-
-                tempo: 70, beats: 4, key: "C", time: "4/4",
-
-                abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=70\nK:C\nV:1 treble\nV:2 bass\n[V:1] z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!D!3!F!5!B !2!D!3!F!5!B | z !2!D!3!F!5!B !2!D!3!F!5!B |\nw: Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do | Re Fa Si Re Fa Si | Re Fa Si Re Fa Si |\n[V:1] z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c |\nw: Re Sol Do Re Sol Do | Re Sol Do Re Sol Do | Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do |\n[V:2] !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!A,4 z2 | !5!C,2 !1!A,4 z2 |\nw: Do Sol | Do Sol | Do La | Do La |\n[V:2] !5!B,,2 !1!G,4 z2 | !5!B,,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 |\nw: Si Sol | Si Sol | Do Sol | Do Sol |`
-
-            },
-
-            'scale_c': { 
-
-                title: "Escala Do Mayor", 
-
-                subtitle: "Técnica - 2 Octavas", 
-
-                tempo: 80, beats: 4, key: "C", time: "4/4", 
-
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |\n[V:2] !5!C, !4!D, !3!E, !2!F, | !1!G, !2!A, !1!B, !1!C | !1!C !1!B, !2!A, !1!G, | !2!F, !3!E, !4!D, !5!C, |\nw: Do Re Mi Fa | Sol La Si Do | Do Si La Sol | Fa Mi Re Do |` 
-
-            },
-
-            'ode_joy': { 
-
-                title: "Oda a la Alegría", 
-
-                subtitle: "Beethoven - Melodía Principal", 
-
-                tempo: 120, beats: 4, key: "G", time: "4/4", 
-
-                abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\nV:2 bass\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !1!G,4 !2!D,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Sol Re |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !2!D,4 !1!G,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Re Sol |` 
-
-            },
-
-            'bach_minuet_g_simple': {
-
-                title: "Minueto en Sol (simplificado)",
-
-                subtitle: "J.S. Bach - Easy Melody",
-
-                tempo: 108, beats: 3, key: "G", time: "3/4",
-
-                abc: `X:1\nT:Minueto en Sol - Easy\nM:3/4\nL:1/8\nQ:1/4=108\nK:G\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !1!G2 !2!A2 | !3!B2 !4!c2 !5!d2 | !4!c2 !3!B2 !2!A2 | !1!G6 |\nw: Re Sol La | Si Do Re | Do Si La | Sol |\n[V:1] !3!B2 !4!c2 !5!d2 | !5!e2 !4!d2 !3!c2 | !3!B2 !2!A2 !1!G2 | !1!G6 |\nw: Si Do Re | Mi Re Do | Si La Sol | Sol |\n[V:2] !1!G,2 !2!B,2 !1!d2 | !1!g2 !1!d2 !2!B,2 | !3!C2 !2!D2 !1!D,2 | !1!G,6 |\nw: Sol Si Re | Sol Re Si | Do Re Re | Sol |\n[V:2] !1!G,2 !1!G,2 !1!G,2 | !3!C2 !2!D2 !1!D,2 | !1!G,2 !2!D,2 !1!G,,2 | !1!G,,6 |\nw: Sol Sol Sol | Do Re Re | Sol Re Sol | Sol |`
-
-            },
-
-            'mozart_ah_vous_var1': {
-
-                title: "Ah, vous dirai-je, Maman (var. fácil)",
-
-                subtitle: "W.A. Mozart - Tema con variación simple",
-
-                tempo: 104, beats: 4, key: "C", time: "4/4",
-
-                abc: `X:1\nT:Ah, vous dirai-je, Maman - Easy Var\nM:4/4\nL:1/8\nQ:1/4=104\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !1!C2 !5!G2 !5!G2 | !6!A2 !6!A2 !5!G4 |\nw: Do Do Sol Sol | La La Sol |\n[V:1] !4!F2 !4!F2 !3!E2 !3!E2 | !2!D2 !2!D2 !1!C4 |\nw: Fa Fa Mi Mi | Re Re Do |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !2!F,2 !1!C,2 !3!E,4 |\nw: Do Mi Do Mi | Fa Do Mi |\n[V:2] !2!F,2 !1!A,2 !1!C2 !1!A,2 | !1!G,2 !2!F,2 !3!E,4 |\nw: Fa La Do La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |`
-
-            },
-
-            'schumann_melody': {
-
-                title: "Melodía Op.68 nº1",
-
-                subtitle: "R. Schumann - Album para la Juventud (Easy)",
-
-                tempo: 84, beats: 4, key: "C", time: "4/4",
-
-                abc: `X:1\nT:Schumann - Melodía (Easy)\nM:4/4\nL:1/8\nQ:1/4=84\nK:C\nV:1 treble\nV:2 bass\n[V:1] !3!E2 !4!F2 !5!G4 | !5!G2 !4!F2 !3!E4 |\nw: Mi Fa Sol | Sol Fa Mi |\n[V:1] !2!D2 !3!E2 !4!F4 | !4!F2 !3!E2 !2!D4 |\nw: Re Mi Fa | Fa Mi Re |\n[V:1] !3!E2 !2!D2 !1!C4 | !1!C2 z2 !2!D2 !3!E2 | !3!E8 |\nw: Mi Re Do | Do Re Mi | Mi |\n[V:2] !1!C,2 !1!C,2 !1!B,,2 !1!B,,2 | !1!A,,2 !2!A,,2 !1!G,,4 |\nw: Do Do Si Si | La La Sol |\n[V:2] !2!F,,2 !1!F,,2 !2!D,,2 !1!D,,2 | !1!G,,2 !1!G,,2 !1!G,,4 |\nw: Fa Fa Re Re | Sol Sol Sol |\n[V:2] !1!C,2 !2!B,,2 !3!A,,4 | !3!A,,2 !2!G,,2 !1!F,,2 !1!G,,2 | !1!C,8 |\nw: Do Si La | La Sol Fa Sol | Do |`
-
-            },
-
-            'satie_gymno1_theme': {
-
-                title: "Gymnopédie nº1 (tema fácil)",
-
-                subtitle: "E. Satie - Easy Theme",
-
-                tempo: 72, beats: 3, key: "Dm", time: "3/4",
-
-                abc: `X:1\nT:Gymnopédie No.1 - Easy\nM:3/4\nL:1/8\nQ:1/4=72\nK:Dm\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !3!F2 !4!A2 | !4!A2 !3!F2 !2!E2 | !2!D2 !1!C2 !2!D2 | !2!D6 |\nw: Re Fa La | La Fa Mi | Re Do Re | Re |\n[V:1] !3!F2 !4!A2 !5!d2 | !5!d2 !4!A2 !3!G2 | !3!F2 !2!E2 !2!D2 | !2!D6 |\nw: Fa La Re | Re La Sol | Fa Mi Re | Re |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |`
-
-            },
-
-            'tchaikovsky_morning_theme': {
-
-                title: "Morning Op.39 (tema fácil)",
-
-                subtitle: "P.I. Tchaikovsky - Album para la Juventud (Easy)",
-
-                tempo: 92, beats: 4, key: "G", time: "4/4",
-
-                abc: `X:1\nT:Tchaikovsky - Morning (Easy)\nM:4/4\nL:1/8\nQ:1/4=92\nK:G\nV:1 treble\nV:2 bass\n[V:1] !1!G2 !2!A2 !3!B2 !4!c2 | !5!d4 !4!c2 !3!B2 |\nw: Sol La Si Do | Re Do Si |\n[V:1] !2!A2 !1!G2 !2!A2 !3!B2 | !3!B4 z4 |\nw: La Sol La Si | Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!A4 !1!G4 |\nw: Do Si La Sol | La Sol |\n[V:2] !1!G,2 !3!E,2 !2!D,2 !1!C,2 | !2!B,,4 !1!C,2 !2!D,2 |\nw: Sol Mi Re Do | Si Do Re |\n[V:2] !1!C,2 !2!B,,2 !1!A,,2 !1!G,,2 | !1!G,,4 z4 |\nw: Do Si La Sol | Sol |\n[V:2] !3!E,2 !2!G,2 !1!C,2 !2!B,,2 | !1!A,,4 !1!G,,4 |\nw: Mi Sol Do Si | La Sol |`
-
-            },
-
-            'burgmuller_arabesque_simple': {
-
-                title: "Arabesque Op.100 nº2 (simplificada)",
-
-                subtitle: "F. Burgmüller - Pattern Easy",
-
-                tempo: 112, beats: 2, key: "Am", time: "2/4",
-
-                abc: `X:1\nT:Burgmuller - Arabesque (Easy)\nM:2/4\nL:1/8\nQ:1/4=112\nK:Am\nV:1 treble\nV:2 bass\n[V:1] !1!A !2!C !3!E !5!a | !5!a !3!E !2!C !1!A |\nw: La Do Mi La | La Mi Do La |\n[V:1] !1!G !2!B !3!E !5!g | !5!g !3!E !2!B !1!G |\nw: Sol Si Mi Sol | Sol Mi Si Sol |\n[V:1] !1!F !2!A !3!C !5!f | !5!f !3!C !2!A !1!F |\nw: Fa La Do Fa | Fa Do La Fa |\n[V:1] !1!E !2!G !3!B !5!e | !5!e !3!B !2!G !1!E |\nw: Mi Sol Si Mi | Mi Si Sol Mi |\n[V:2] !1!A,2 !1!A,2 | !1!A,2 z2 |\nw: La La | La |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |\n[V:2] !2!F,2 !2!F,2 | !2!F,2 z2 |\nw: Fa Fa | Fa |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |`
-
-            },
-
-            'clementi_sonatina36_1_theme': {
-
-                title: "Sonatina Op.36 nº1 (tema fácil)",
-
-                subtitle: "M. Clementi - Opening Theme (Easy)",
-
-                tempo: 120, beats: 4, key: "C", time: "4/4",
-
-                abc: `X:1\nT:Clementi - Sonatina Op.36 No.1 (Easy)\nM:4/4\nL:1/8\nQ:1/4=120\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !4!F2 | !5!G4 !4!F2 !3!E2 |\nw: Do Re Mi Fa | Sol Fa Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !3!E4 z4 |\nw: Re Do Re Mi | Mi |\n[V:1] !3!E2 !4!F2 !5!G2 !6!A2 | !5!G4 !4!F2 !3!E2 |\nw: Mi Fa Sol La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |\n[V:2] !2!F,2 !1!A,2 !2!F,2 !1!A,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Fa La Fa La | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |`
-
-            },
-
-            'chopin_prelude28_4_theme': {
-
-                title: "Preludio Op.28 nº4 (tema fácil)",
-
-                subtitle: "F. Chopin - Cantabile Easy Line",
-
-                tempo: 60, beats: 4, key: "Em", time: "4/4",
-
-                abc: `X:1\nT:Chopin - Prelude Op.28 No.4 (Easy)\nM:4/4\nL:1/8\nQ:1/4=60\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 |\nw: Si La Sol Mi | Fa# Mi Sol Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!F2 !1!E2 z4 |\nw: Do Si La Sol | Fa# Mi |\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 | !3!B8 |\nw: Si La Sol Mi | Fa# Mi Sol Si | Si |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 |\nw: Mi Sol Si Sol | Mi Sol Si Sol |\n[V:2] !3!E,2 !2!A,2 !1!C2 !2!A,2 | !3!E,2 !2!A,2 !1!C2 !2!A,2 |\nw: Mi La Do La | Mi La Do La |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,8 |\nw: Mi Sol Si Sol | Mi Sol Si Sol | Mi |`
-
-            },
-
-            'bartok_mikrokosmos_easy': {
-
-                title: "Mikrokosmos (ejercicio fácil)",
-
-                subtitle: "B. Bartók - Coordinación y ritmo (Easy)",
-
-                tempo: 96, beats: 4, key: "C", time: "4/4",
-
-                abc: `X:1\nT:Bartok - Mikrokosmos (Easy)\nM:4/4\nL:1/8\nQ:1/4=96\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !2!D2 | !1!C2 !1!C2 z4 |\nw: Do Re Mi Re | Do Do |\n[V:1] !2!D2 !3!E2 !4!F2 !3!E2 | !2!D2 !2!D2 z4 |\nw: Re Mi Fa Mi | Re Re |\n[V:1] !3!E2 !4!F2 !5!G2 !4!F2 | !3!E2 !3!E2 z4 |\nw: Mi Fa Sol Fa | Mi Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !1!C8 |\nw: Re Do Re Mi | Do |\n[V:2] !1!C,2 !2!B,,2 !3!A,,2 !2!B,,2 | !1!C,2 !1!C,2 z4 |\nw: Do Si La Si | Do Do |\n[V:2] !2!B,,2 !3!A,,2 !4!G,,2 !3!A,,2 | !2!B,,2 !2!B,,2 z4 |\nw: Si La Sol La | Si Si |\n[V:2] !3!A,,2 !4!G,,2 !5!F,,2 !4!G,,2 | !3!A,,2 !3!A,,2 z4 |\nw: La Sol Fa Sol | La La |\n[V:2] !2!B,,2 !1!C,2 !2!B,,2 !3!A,,2 | !1!C,8 |\nw: Si Do Si La | Do |`
-
-            }
-
+            'minuet': { title: "Minueto en Sol (Bach)", subtitle: "Bach / Barroco - Estructura Completa", tempo: 110, beats: 3, key: "G", time: "3/4", abc: `X:1\nM:3/4\nL:1/8\nQ:1/4=110\nK:G\nV:1 treble\nV:2 bass\n[V:1] !5!d2 !1!G!2!A !3!B!4!c | !5!d2 !1!G2 !1!G2 | !5!e2 !4!c!5!d !3!e!4!f | !5!g2 !1!G2 !1!G2 |\nw: Re Sol La Si Do | Re Sol Sol | Mi Do Re Mi Fa# | Sol Sol Sol |\n[V:1] !4!c2 !5!d!4!c !3!B!2!A | !3!B2 !4!c!3!B !2!A!1!G | !1!F!2!G !3!A!2!B !3!A!1!G | !2!A6 |\nw: Do Re Do Si La | Si Do Si La Sol | Fa# Sol La Si La Sol | La |\n[V:2] !5!G,2 !3!B,2 !1!D2 | !5!G,4 !5!G,2 | !5!C2 !3!E2 !1!G2 | !5!C4 !5!C2 |\nw: Sol Si Re | Sol Sol | Do Mi Sol | Do Do |\n[V:2] !3!E,4 !3!E,2 | !5!G,4 !5!G,2 | !1!D,4 !1!D,2 | !1!D,6 |\nw: Mi Mi | Sol Sol | Re Re | Re |` },
+            'comptine': { title: "Comptine d'un autre été", subtitle: "Yann Tiersen - Beginner Version", tempo: 80, beats: 4, key: "Em", time: "4/4", abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=80\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !1!E2 !2!G2 !3!B2 !5!e2 | !3!B2 !2!G2 !1!E4 | !1!G2 !2!B2 !3!d2 !5!g2 | !3!d2 !2!B2 !1!G4 |\nw: Mi Sol Si Mi | Si Sol Mi | Sol Si Re Sol | Re Si Sol |\n[V:1] !1!D2 !2!F2 !3!A2 !5!d2 | !3!A2 !2!F2 !1!D4 | !1!E2 !2!A2 !3!c2 !5!e2 | !3!c2 !2!A2 !1!E4 |\nw: Re Fa# La Re | La Fa# Re | Mi La Do Mi | Do La Mi |\n[V:2] !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!E,2 !2!B,2 !1!E2 !2!B,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 | !5!G,,2 !2!D,2 !1!G,2 !2!D,2 |\nw: Mi Si Mi Si | Mi Si Mi Si | Sol Re Sol Re | Sol Re Sol Re |\n[V:2] !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!D,,2 !2!A,,2 !1!D,2 !2!A,,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 | !5!A,,2 !2!E,2 !1!A,2 !2!E,2 |\nw: Re La Re La | Re La Re La | La Mi La Mi | La Mi La Mi |` },
+            'preludio_bach': { title: "Preludio en Do Mayor (BWV 846)", subtitle: "J.S. Bach - El Clave Bien Temperado", tempo: 70, beats: 4, key: "C", time: "4/4", abc: `X:1\nM:4/4\nL:1/8\nQ:1/4=70\nK:C\nV:1 treble\nV:2 bass\n[V:1] z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!D!3!F!5!B !2!D!3!F!5!B | z !2!D!3!F!5!B !2!D!3!F!5!B |\nw: Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do | Re Fa Si Re Fa Si | Re Fa Si Re Fa Si |\n[V:1] z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!D!3!G!5!c !2!D!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c | z !2!E!3!G!5!c !2!E!3!G!5!c |\nw: Re Sol Do Re Sol Do | Re Sol Do Re Sol Do | Mi Sol Do Mi Sol Do | Mi Sol Do Mi Sol Do |\n[V:2] !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!A,4 z2 | !5!C,2 !1!A,4 z2 |\nw: Do Sol | Do Sol | Do La | Do La |\n[V:2] !5!B,,2 !1!G,4 z2 | !5!B,,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 | !5!C,2 !1!G,4 z2 |\nw: Si Sol | Si Sol | Do Sol | Do Sol |` },
+            'scale_c': { title: "Escala Do Mayor", subtitle: "Técnica - 2 Octavas", tempo: 80, beats: 4, key: "C", time: "4/4", abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=80\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C !2!D !3!E !1!F | !2!G !3!A !4!B !5!c | !1!c !2!d !3!e !1!f | !2!g !3!a !4!b !5!c' |\nw: Do Re Mi Fa | Sol La Si Do | Do Re Mi Fa | Sol La Si Do |\n[V:2] !5!C, !4!D, !3!E, !2!F, | !1!G, !2!A, !1!B, !1!C | !1!C !1!B, !2!A, !1!G, | !2!F, !3!E, !4!D, !5!C, |\nw: Do Re Mi Fa | Sol La Si Do | Do Si La Sol | Fa Mi Re Do |` },
+            'ode_joy': { title: "Oda a la Alegría", subtitle: "Beethoven - Melodía Principal", tempo: 120, beats: 4, key: "G", time: "4/4", abc: `X:1\nM:4/4\nL:1/4\nQ:1/4=120\nK:G\nV:1 treble\nV:2 bass\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !3!B>!2!A !2!A2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | Si La La |\n[V:1] !3!B !3!B !4!c !5!d | !5!d !4!c !3!B !2!A | !1!G !1!G !2!A !3!B | !2!A>!1!G !1!G2 |\nw: Si Si Do Re | Re Do Si La | Sol Sol La Si | La Sol Sol |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !1!G,4 !2!D,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Sol Re |\n[V:2] !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !3!E,2 !3!E,2 !2!D,2 !2!D,2 | !1!G,2 !1!G,2 !2!D,2 !2!D,2 | !2!D,4 !1!G,4 |\nw: Sol Sol Re Re | Mi Mi Re Re | Sol Sol Re Re | Re Sol |` },
+            'bach_minuet_g_simple': { title: "Minueto en Sol (simplificado)", subtitle: "J.S. Bach - Easy Melody", tempo: 108, beats: 3, key: "G", time: "3/4", abc: `X:1\nT:Minueto en Sol - Easy\nM:3/4\nL:1/8\nQ:1/4=108\nK:G\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !1!G2 !2!A2 | !3!B2 !4!c2 !5!d2 | !4!c2 !3!B2 !2!A2 | !1!G6 |\nw: Re Sol La | Si Do Re | Do Si La | Sol |\n[V:1] !3!B2 !4!c2 !5!d2 | !5!e2 !4!d2 !3!c2 | !3!B2 !2!A2 !1!G2 | !1!G6 |\nw: Si Do Re | Mi Re Do | Si La Sol | Sol |\n[V:2] !1!G,2 !2!B,2 !1!d2 | !1!g2 !1!d2 !2!B,2 | !3!C2 !2!D2 !1!D,2 | !1!G,6 |\nw: Sol Si Re | Sol Re Si | Do Re Re | Sol |\n[V:2] !1!G,2 !1!G,2 !1!G,2 | !3!C2 !2!D2 !1!D,2 | !1!G,2 !2!D,2 !1!G,,2 | !1!G,,6 |\nw: Sol Sol Sol | Do Re Re | Sol Re Sol | Sol |` },
+            'mozart_ah_vous_var1': { title: "Ah, vous dirai-je, Maman (var. fácil)", subtitle: "W.A. Mozart - Tema con variación simple", tempo: 104, beats: 4, key: "C", time: "4/4", abc: `X:1\nT:Ah, vous dirai-je, Maman - Easy Var\nM:4/4\nL:1/8\nQ:1/4=104\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !1!C2 !5!G2 !5!G2 | !6!A2 !6!A2 !5!G4 |\nw: Do Do Sol Sol | La La Sol |\n[V:1] !4!F2 !4!F2 !3!E2 !3!E2 | !2!D2 !2!D2 !1!C4 |\nw: Fa Fa Mi Mi | Re Re Do |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:1] !5!G2 !5!G2 !4!F2 !4!F2 | !3!E2 !3!E2 !2!D4 |\nw: Sol Sol Fa Fa | Mi Mi Re |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !2!F,2 !1!C,2 !3!E,4 |\nw: Do Mi Do Mi | Fa Do Mi |\n[V:2] !2!F,2 !1!A,2 !1!C2 !1!A,2 | !1!G,2 !2!F,2 !3!E,4 |\nw: Fa La Do La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !2!D,2 !1!G,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Do Mi Re Sol | Do Sol Do |` },
+            'schumann_melody': { title: "Melodía Op.68 nº1", subtitle: "R. Schumann - Album para la Juventud (Easy)", tempo: 84, beats: 4, key: "C", time: "4/4", abc: `X:1\nT:Schumann - Melodía (Easy)\nM:4/4\nL:1/8\nQ:1/4=84\nK:C\nV:1 treble\nV:2 bass\n[V:1] !3!E2 !4!F2 !5!G4 | !5!G2 !4!F2 !3!E4 |\nw: Mi Fa Sol | Sol Fa Mi |\n[V:1] !2!D2 !3!E2 !4!F4 | !4!F2 !3!E2 !2!D4 |\nw: Re Mi Fa | Fa Mi Re |\n[V:1] !3!E2 !2!D2 !1!C4 | !1!C2 z2 !2!D2 !3!E2 | !3!E8 |\nw: Mi Re Do | Do Re Mi | Mi |\n[V:2] !1!C,2 !1!C,2 !1!B,,2 !1!B,,2 | !1!A,,2 !2!A,,2 !1!G,,4 |\nw: Do Do Si Si | La La Sol |\n[V:2] !2!F,,2 !1!F,,2 !2!D,,2 !1!D,,2 | !1!G,,2 !1!G,,2 !1!G,,4 |\nw: Fa Fa Re Re | Sol Sol Sol |\n[V:2] !1!C,2 !2!B,,2 !3!A,,4 | !3!A,,2 !2!G,,2 !1!F,,2 !1!G,,2 | !1!C,8 |\nw: Do Si La | La Sol Fa Sol | Do |` },
+            'satie_gymno1_theme': { title: "Gymnopédie nº1 (tema fácil)", subtitle: "E. Satie - Easy Theme", tempo: 72, beats: 3, key: "Dm", time: "3/4", abc: `X:1\nT:Gymnopédie No.1 - Easy\nM:3/4\nL:1/8\nQ:1/4=72\nK:Dm\nV:1 treble\nV:2 bass\n[V:1] !2!D2 !3!F2 !4!A2 | !4!A2 !3!F2 !2!E2 | !2!D2 !1!C2 !2!D2 | !2!D6 |\nw: Re Fa La | La Fa Mi | Re Do Re | Re |\n[V:1] !3!F2 !4!A2 !5!d2 | !5!d2 !4!A2 !3!G2 | !3!F2 !2!E2 !2!D2 | !2!D6 |\nw: Fa La Re | Re La Sol | Fa Mi Re | Re |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |\n[V:2] !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 | !1!G,,2 !2!B,2 !1!D2 | !1!D,,2 !2!A,2 !1!C2 |\nw: Sol Si Re | Re La Do | Sol Si Re | Re La Do |` },
+            'tchaikovsky_morning_theme': { title: "Morning Op.39 (tema fácil)", subtitle: "P.I. Tchaikovsky - Album para la Juventud (Easy)", tempo: 92, beats: 4, key: "G", time: "4/4", abc: `X:1\nT:Tchaikovsky - Morning (Easy)\nM:4/4\nL:1/8\nQ:1/4=92\nK:G\nV:1 treble\nV:2 bass\n[V:1] !1!G2 !2!A2 !3!B2 !4!c2 | !5!d4 !4!c2 !3!B2 |\nw: Sol La Si Do | Re Do Si |\n[V:1] !2!A2 !1!G2 !2!A2 !3!B2 | !3!B4 z4 |\nw: La Sol La Si | Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!A4 !1!G4 |\nw: Do Si La Sol | La Sol |\n[V:2] !1!G,2 !3!E,2 !2!D,2 !1!C,2 | !2!B,,4 !1!C,2 !2!D,2 |\nw: Sol Mi Re Do | Si Do Re |\n[V:2] !1!C,2 !2!B,,2 !1!A,,2 !1!G,,2 | !1!G,,4 z4 |\nw: Do Si La Sol | Sol |\n[V:2] !3!E,2 !2!G,2 !1!C,2 !2!B,,2 | !1!A,,4 !1!G,,4 |\nw: Mi Sol Do Si | La Sol |` },
+            'burgmuller_arabesque_simple': { title: "Arabesque Op.100 nº2 (simplificada)", subtitle: "F. Burgmüller - Pattern Easy", tempo: 112, beats: 2, key: "Am", time: "2/4", abc: `X:1\nT:Burgmuller - Arabesque (Easy)\nM:2/4\nL:1/8\nQ:1/4=112\nK:Am\nV:1 treble\nV:2 bass\n[V:1] !1!A !2!C !3!E !5!a | !5!a !3!E !2!C !1!A |\nw: La Do Mi La | La Mi Do La |\n[V:1] !1!G !2!B !3!E !5!g | !5!g !3!E !2!B !1!G |\nw: Sol Si Mi Sol | Sol Mi Si Sol |\n[V:1] !1!F !2!A !3!C !5!f | !5!f !3!C !2!A !1!F |\nw: Fa La Do Fa | Fa Do La Fa |\n[V:1] !1!E !2!G !3!B !5!e | !5!e !3!B !2!G !1!E |\nw: Mi Sol Si Mi | Mi Si Sol Mi |\n[V:2] !1!A,2 !1!A,2 | !1!A,2 z2 |\nw: La La | La |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |\n[V:2] !2!F,2 !2!F,2 | !2!F,2 z2 |\nw: Fa Fa | Fa |\n[V:2] !3!E,2 !3!E,2 | !3!E,2 z2 |\nw: Mi Mi | Mi |` },
+            'clementi_sonatina36_1_theme': { title: "Sonatina Op.36 nº1 (tema fácil)", subtitle: "M. Clementi - Opening Theme (Easy)", tempo: 120, beats: 4, key: "C", time: "4/4", abc: `X:1\nT:Clementi - Sonatina Op.36 No.1 (Easy)\nM:4/4\nL:1/8\nQ:1/4=120\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !4!F2 | !5!G4 !4!F2 !3!E2 |\nw: Do Re Mi Fa | Sol Fa Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !3!E4 z4 |\nw: Re Do Re Mi | Mi |\n[V:1] !3!E2 !4!F2 !5!G2 !6!A2 | !5!G4 !4!F2 !3!E2 |\nw: Mi Fa Sol La | Sol Fa Mi |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |\n[V:2] !2!F,2 !1!A,2 !2!F,2 !1!A,2 | !1!C,2 !1!G,2 !1!C,4 |\nw: Fa La Fa La | Do Sol Do |\n[V:2] !1!C,2 !3!E,2 !1!C,2 !3!E,2 | !1!C,2 !3!E,2 !1!C,2 !3!E,2 |\nw: Do Mi Do Mi | Do Mi Do Mi |` },
+            'chopin_prelude28_4_theme': { title: "Preludio Op.28 nº4 (tema fácil)", subtitle: "F. Chopin - Cantabile Easy Line", tempo: 60, beats: 4, key: "Em", time: "4/4", abc: `X:1\nT:Chopin - Prelude Op.28 No.4 (Easy)\nM:4/4\nL:1/8\nQ:1/4=60\nK:Em\nV:1 treble\nV:2 bass\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 |\nw: Si La Sol Mi | Fa# Mi Sol Si |\n[V:1] !4!c2 !3!B2 !2!A2 !1!G2 | !2!F2 !1!E2 z4 |\nw: Do Si La Sol | Fa# Mi |\n[V:1] !3!B2 !2!A2 !1!G2 !1!E2 | !2!F2 !1!E2 !2!G2 !3!B2 | !3!B8 |\nw: Si La Sol Mi | Fa# Mi Sol Si | Si |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 |\nw: Mi Sol Si Sol | Mi Sol Si Sol |\n[V:2] !3!E,2 !2!A,2 !1!C2 !2!A,2 | !3!E,2 !2!A,2 !1!C2 !2!A,2 |\nw: Mi La Do La | Mi La Do La |\n[V:2] !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,2 !2!G,2 !1!B,2 !2!G,2 | !3!E,8 |\nw: Mi Sol Si Sol | Mi Sol Si Sol | Mi |` },
+            'bartok_mikrokosmos_easy': { title: "Mikrokosmos (ejercicio fácil)", subtitle: "B. Bartók - Coordinación y ritmo (Easy)", tempo: 96, beats: 4, key: "C", time: "4/4", abc: `X:1\nT:Bartok - Mikrokosmos (Easy)\nM:4/4\nL:1/8\nQ:1/4=96\nK:C\nV:1 treble\nV:2 bass\n[V:1] !1!C2 !2!D2 !3!E2 !2!D2 | !1!C2 !1!C2 z4 |\nw: Do Re Mi Re | Do Do |\n[V:1] !2!D2 !3!E2 !4!F2 !3!E2 | !2!D2 !2!D2 z4 |\nw: Re Mi Fa Mi | Re Re |\n[V:1] !3!E2 !4!F2 !5!G2 !4!F2 | !3!E2 !3!E2 z4 |\nw: Mi Fa Sol Fa | Mi Mi |\n[V:1] !2!D2 !1!C2 !2!D2 !3!E2 | !1!C8 |\nw: Re Do Re Mi | Do |\n[V:2] !1!C,2 !2!B,2 !3!A,2 !2!B,2 | !1!C,2 !1!C,2 z4 |\nw: Do Si La Si | Do Do |\n[V:2] !2!B,2 !3!A,2 !4!G,2 !3!A,2 | !2!B,2 !2!B,2 z4 |\nw: Si La Sol La | Si Si |\n[V:2] !3!A,2 !4!G,2 !5!F,2 !4!G,2 | !3!A,2 !3!A,2 z4 |\nw: La Sol Fa Sol | La La |\n[V:2] !2!B,2 !1!C,2 !2!B,2 !3!A,2 | !1!C,8 |\nw: Si Do Si La | Do |` }
         };
 
+        const noteNamesMap = { "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B", "Fa#": "F#", "Sol#": "G#", "Do#": "C#", "Re#": "D#" };
+        
+        const prefs = { songId: 'minuet', tempo: 110, fingers: true, cipher: 'lat' };
+        const runtime = { isPlaying: false, isPaused: false, isMetro: false, audioCtx: null, visualObj: null, synth: null, timing: null, metroTimer: null, lastHighlighted: [] };
 
-
-        const noteNamesMap = { "Do": "C", "Re": "D", "Mi": "E", "Fa": "F", "Sol": "G", "La": "A", "Si": "B" };
-
-
-
-        let state = { songId: 'minuet', tempo: 110, fingers: true, cipher: 'lat', isPlaying: false, isMetro: false, audioCtx: null };
-
-        let abcInstance, synthControl, timingCallbacks, metronomeTimer;
-
-
-
-        document.addEventListener('DOMContentLoaded', () => {
-
-            loadSong('minuet');
-
-            setupListeners();
-
+        document.addEventListener('DOMContentLoaded', () => { 
+            loadSong('minuet'); 
+            setupListeners(); 
         });
 
-
-
         function setupListeners() {
-
+            // Repositorio
             document.getElementById('song-selector').addEventListener('change', (e) => loadSong(e.target.value));
-
-            document.getElementById('fingering-btn').addEventListener('click', toggleFingers);
-
-            document.getElementById('cipher-btn').addEventListener('click', toggleCipher);
-
+            
+            // Controles Transporte
             document.getElementById('play-btn').addEventListener('click', playPiano);
-
-            document.getElementById('stop-btn').addEventListener('click', stopAll);
-
+            document.getElementById('pause-btn').addEventListener('click', pausePiano);
+            document.getElementById('stop-btn').addEventListener('click', stopPiano);
+            
+            // Tempo
+            document.getElementById('tempo-plus').addEventListener('click', () => updateTempo(prefs.tempo + 10));
+            document.getElementById('tempo-minus').addEventListener('click', () => updateTempo(prefs.tempo - 10));
+            
+            // Asistentes
+            document.getElementById('fingering-btn').addEventListener('click', toggleFingers);
+            document.getElementById('cipher-btn').addEventListener('click', toggleCipher);
             document.getElementById('metro-btn').addEventListener('click', toggleMetro);
 
-            document.getElementById('tempo-slider').addEventListener('input', (e) => updateTempo(0, parseInt(e.target.value)));
+            // Botones Guía
+            document.getElementById('fingering-guide-btn').addEventListener('click', () => {
+                document.getElementById('fingering-modal').style.display = 'flex';
+            });
+            document.getElementById('cipher-guide-btn').addEventListener('click', openCipherGuide);
 
             window.addEventListener('resize', debounce(() => renderScore(), 250));
-
         }
-
-
 
         function debounce(func, wait) {
-
             let timeout;
-
-            return function() {
-
-                clearTimeout(timeout);
-
-                timeout = setTimeout(() => func.apply(this, arguments), wait);
-
-            };
-
+            return function() { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, arguments), wait); };
         }
 
-
-
-        function getEffectiveAbc(song){
-
-          let abc = song.abc;
-
-          
-
-          // Tempo actual
-
-          if (abc.includes('Q:')) abc = abc.replace(/Q:1\/4=\d+/, `Q:1/4=${state.tempo}`);
-
-          else abc = abc.replace('K:', `Q:1/4=${state.tempo}\nK:`);
-
-          
-
-          // Digitación
-
-          if(!state.fingers) abc = abc.replace(/![1-5]!/g, "");
-
-          
-
-          // Cifrado/Lyrics
-
-          if(state.cipher === 'off') {
-
-            abc = abc.split('\n').filter(l => !l.trim().startsWith('w:')).join('\n');
-
-          } else if (state.cipher === 'ang') {
-
-            abc = abc.split('\n').map(line => {
-
-              if (line.trim().startsWith('w:')) {
-
-                let content = line.replace(/^\s*w:\s*/, '');
-
-                const sortedKeys = Object.keys(noteNamesMap).sort((a,b) => b.length - a.length);
-
-                sortedKeys.forEach(k => {
-
-                  const regex = new RegExp(k + '(?![a-záéíóú])', 'gi');
-
-                  content = content.replace(regex, noteNamesMap[k]);
-
-                });
-
-                return 'w: ' + content;
-
-              }
-
-              return line;
-
-            }).join('\n');
-
-          }
-
-          return abc;
-
+        function getEffectiveAbc(song) {
+            let abc = song.abc;
+            if (/^\s*Q:/m.test(abc)) abc = abc.replace(/^\s*Q:.*$/m, `Q:1/4=${prefs.tempo}`);
+            else abc = abc.replace(/^(\s*K:)/m, `Q:1/4=${prefs.tempo}\n$1`);
+            if (!prefs.fingers) abc = abc.replace(/![1-5]!/g, "");
+            if (prefs.cipher === 'off') abc = abc.split('\n').filter(l => !l.trim().startsWith('w:')).join('\n');
+            else if (prefs.cipher === 'ang') {
+                abc = abc.split('\n').map(l => {
+                    if (l.trim().startsWith('w:')) {
+                        let content = l.replace(/^\s*w:\s*/, '');
+                        const sortedKeys = Object.keys(noteNamesMap).sort((a,b) => b.length - a.length);
+                        sortedKeys.forEach(k => { content = content.replace(new RegExp(k + '(?![a-záéíóú])', 'gi'), noteNamesMap[k]); });
+                        return 'w: ' + content;
+                    }
+                    return l;
+                }).join('\n');
+            }
+            return abc;
         }
-
-
-
-        function pitchToNoteName(pitch, lang='lat'){
-
-            if (pitch === undefined || pitch === null) return "";
-
-            const namesAng = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-
-            const namesLat = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
-
-            const noteIndex = ((pitch % 12) + 12) % 12;
-
-            const octave = Math.floor(pitch / 12) - 1; 
-
-            const noteName = (lang === 'ang') ? namesAng[noteIndex] : namesLat[noteIndex];
-
-            return `${noteName}${octave}`;
-
-        }
-
-
 
         function loadSong(id) {
-
             stopAll();
-
-            let song = SONGS[id] || SONGS['minuet'];
-
-            state.songId = id;
-
+            const song = SONGS[id];
+            prefs.songId = id;
             document.getElementById('song-meta').innerText = song.subtitle || "";
-
-            updateTempo(0, song.tempo);
-
-            document.getElementById('time-sig').innerText = song.time;
-
-            document.getElementById('key-sig').innerText = song.key;
-
-            
-
-            const beatContainer = document.getElementById('beat-container');
-
-            beatContainer.innerHTML = '';
-
-            const beats = song.beats || 4;
-
-            for(let i=0; i<beats; i++) {
-
-                const dot = document.createElement('div');
-
-                dot.className = `beat-dot`;
-
-                dot.id = `beat-${i+1}`;
-
-                beatContainer.appendChild(dot);
-
-            }
-
+            updateTempo(song.tempo);
+            renderBeatIndicators();
             renderScore();
-
         }
 
-
+        function renderBeatIndicators() {
+            const btc = document.getElementById('beat-container');
+            const song = SONGS[prefs.songId];
+            const beats = song.beats || 4;
+            btc.innerHTML = '';
+            for(let i=0; i<beats; i++) {
+                const d = document.createElement('div');
+                d.className = 'beat-dot'; d.id = `beat-${i+1}`;
+                btc.appendChild(d);
+            }
+        }
 
         function renderScore() {
-
-            let song = SONGS[state.songId];
-
-            let abc = getEffectiveAbc(song);
-
-            abcInstance = ABCJS.renderAbc("paper", abc, {
-
+            const abc = getEffectiveAbc(SONGS[prefs.songId]);
+            runtime.visualObj = ABCJS.renderAbc("paper", abc, {
                 responsive: 'resize', add_classes: true, staffwidth: 800, scale: 1.1,
-
                 clickListener: (abcElem, tuneNumber, classes, analysis, drag, mouseEvent) => {
-
                   if (abcElem && abcElem.el_type === "note") showTooltip(mouseEvent, abcElem.pitches?.[0]?.pitch);
-
                 }
-
             })[0];
-
         }
 
-
-
-        function updateTempo(delta, exact = null) {
-
-            state.tempo = exact ? exact : Math.max(40, Math.min(220, state.tempo + delta));
-
-            document.getElementById('tempo-display').innerText = state.tempo;
-
-            document.getElementById('tempo-slider').value = state.tempo;
-
-            if(state.isPlaying || state.isMetro) {
-
-                const wasPlaying = state.isPlaying;
-
+        function updateTempo(val) {
+            prefs.tempo = Math.max(40, Math.min(220, val));
+            document.getElementById('tempo-display').innerText = prefs.tempo;
+            if (runtime.isPlaying || runtime.isMetro) {
+                const wasPlaying = runtime.isPlaying;
+                const wasMetro = runtime.isMetro;
                 stopAll();
-
-                if(wasPlaying) playPiano();
-
-            } else {
-
                 renderScore();
-
-            }
-
+                if(wasPlaying) playPiano();
+                else if(wasMetro) toggleMetro();
+            } else renderScore();
         }
-
-
 
         function initAudio() {
-
-            if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-            if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
-
+            if (!runtime.audioCtx) runtime.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (runtime.audioCtx.state === 'suspended') runtime.audioCtx.resume();
         }
-
-
 
         async function playPiano() {
-
-            if (state.isPlaying) { stopAll(); return; }
-
-            if(state.isMetro) { stopAll(); }
-
-            initAudio(); state.isPlaying = true;
-
-            document.getElementById('play-btn').innerHTML = '<span>⏸ Pausar</span>';
-
-            if (ABCJS.synth.supportsAudio()) {
-
-                const synth = new ABCJS.synth.CreateSynth();
-
-                let song = SONGS[state.songId];
-
-                const effectiveAbc = getEffectiveAbc(song);
-
-                const audioObj = ABCJS.renderAbc("paper", effectiveAbc, { responsive: 'resize' })[0];
-
-                timingCallbacks = new ABCJS.TimingCallbacks(audioObj, {
-
-                    qpm: state.tempo,
-
-                    eventCallback: (ev) => {
-
-                        document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
-
-                        document.querySelectorAll('.lyric-highlight').forEach(el => el.classList.remove('lyric-highlight'));
-
-                        if (ev && ev.elements) {
-
-                            ev.elements.forEach(set => set.forEach(el => {
-
-                                const isLyric = el.classList.contains('abcjs-lyric');
-
-                                if(isLyric) el.classList.add('lyric-highlight'); 
-
-                                else el.classList.add('abcjs-highlight'); 
-
-                            }));
-
-                        }
-
-                    },
-
-                    beatCallback: (beatNumber) => visualizeBeat((beatNumber % (SONGS[state.songId].beats || 4)) + 1)
-
-                });
-
-                await synth.init({ visualObj: audioObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
-
-                await synth.prime(); synth.start(); timingCallbacks.start(); synthControl = { synth };
-
+            if (runtime.isPlaying && !runtime.isPaused) return;
+            if (runtime.isPaused) {
+                runtime.isPaused = false;
+                if (runtime.synth) runtime.synth.resume();
+                if (runtime.timing) runtime.timing.start();
+                return;
             }
+            
+            stopAll();
+            initAudio();
+            runtime.isPlaying = true;
+            const synth = new ABCJS.synth.CreateSynth();
+            runtime.synth = synth;
+            const song = SONGS[prefs.songId];
+            const beats = song.beats || 4;
 
+            runtime.timing = new ABCJS.TimingCallbacks(runtime.visualObj, {
+                qpm: prefs.tempo,
+                eventCallback: (ev) => {
+                    document.querySelectorAll('.highlight-right, .highlight-left, .lyric-highlight').forEach(el => 
+                        el.classList.remove('highlight-right', 'highlight-left', 'lyric-highlight')
+                    );
+                    if (ev && ev.elements) {
+                        ev.elements.forEach(set => set.forEach(el => {
+                            if (el.classList.contains('abcjs-lyric')) {
+                                el.classList.add('lyric-highlight');
+                            } else {
+                                const voiceGroup = el.closest('.abcjs-v0') || el.closest('.abcjs-v1');
+                                if (voiceGroup) {
+                                    if (voiceGroup.classList.contains('abcjs-v0')) el.classList.add('highlight-right');
+                                    else el.classList.add('highlight-left');
+                                } else { el.classList.add('highlight-right'); }
+                            }
+                        }));
+                    }
+                },
+                beatCallback: (beat) => visualizeBeat((beat % beats) + 1)
+            });
+
+            try {
+                await synth.init({ visualObj: runtime.visualObj, options: { soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" } });
+                await synth.prime();
+                synth.start();
+                runtime.timing.start();
+            } catch (e) { stopAll(); }
         }
 
+        function pausePiano() {
+            if (!runtime.isPlaying || runtime.isPaused) return;
+            runtime.isPaused = true;
+            if (runtime.synth) runtime.synth.pause();
+            if (runtime.timing) runtime.timing.stop();
+        }
 
+        function stopPiano() { stopAll(); renderScore(); }
 
         function toggleMetro() {
-
-            if(state.isMetro) { stopAll(); return; }
-
-            stopAll(); initAudio(); state.isMetro = true;
-
-            document.getElementById('metro-btn').classList.add('bg-indigo-500', 'text-white');
-
-            let song = SONGS[state.songId], currentBeat = 0, nextTime = state.audioCtx.currentTime;
-
+            if (runtime.isMetro) { stopMetro(); return; }
+            stopAll(); initAudio(); runtime.isMetro = true;
+            document.getElementById('metro-btn').classList.replace('btn-ghost', 'btn-stop');
+            let nextTime = runtime.audioCtx.currentTime;
+            let currentBeat = 0;
+            const beats = SONGS[prefs.songId].beats || 4;
             function schedule() {
-
-                if(!state.isMetro) return;
-
-                while (nextTime < state.audioCtx.currentTime + 0.1) {
-
-                    playClick(nextTime, currentBeat % (song.beats || 4) === 0);
-
-                    const b = (currentBeat % (song.beats || 4)) + 1;
-
-                    setTimeout(() => visualizeBeat(b), (nextTime - state.audioCtx.currentTime) * 1000);
-
-                    nextTime += 60.0 / state.tempo; currentBeat++;
-
+                while (nextTime < runtime.audioCtx.currentTime + 0.1) {
+                    playClick(nextTime, currentBeat % beats === 0);
+                    const b = (currentBeat % beats) + 1;
+                    setTimeout(() => visualizeBeat(b), (nextTime - runtime.audioCtx.currentTime) * 1000);
+                    nextTime += 60.0 / prefs.tempo;
+                    currentBeat++;
                 }
-
-                metronomeTimer = setTimeout(schedule, 25);
-
+                runtime.metroTimer = setTimeout(schedule, 25);
             }
-
             schedule();
-
         }
-
-
 
         function playClick(time, strong) {
-
-            const osc = state.audioCtx.createOscillator(), gain = state.audioCtx.createGain();
-
-            osc.frequency.value = strong ? 1000 : 600; gain.gain.setValueAtTime(0.15, time); 
-
-            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05); osc.connect(gain); 
-
-            gain.connect(state.audioCtx.destination); osc.start(time); osc.stop(time + 0.05);
-
+            const osc = runtime.audioCtx.createOscillator(), gain = runtime.audioCtx.createGain();
+            osc.frequency.value = strong ? 1000 : 600;
+            gain.gain.setValueAtTime(0.15, time);
+            gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+            osc.connect(gain); gain.connect(runtime.audioCtx.destination);
+            osc.start(time); osc.stop(time + 0.05);
         }
 
-
+        function stopMetro() {
+            runtime.isMetro = false;
+            if(runtime.metroTimer) clearTimeout(runtime.metroTimer);
+            document.getElementById('metro-btn').classList.replace('btn-stop', 'btn-ghost');
+            document.querySelectorAll('.beat-dot').forEach(el => el.classList.remove('beat-active'));
+        }
 
         function stopAll() {
-
-            state.isPlaying = false; state.isMetro = false;
-
-            if(synthControl) { synthControl.synth.stop(); synthControl = null; }
-
-            if(timingCallbacks) { timingCallbacks.stop(); timingCallbacks = null; }
-
-            if(metronomeTimer) { clearTimeout(metronomeTimer); metronomeTimer = null; }
-
-            document.getElementById('play-btn').innerHTML = '<span>▶ Iniciar Práctica</span>';
-
-            document.getElementById('metro-btn').classList.remove('bg-indigo-500', 'text-white');
-
-            document.querySelectorAll('.abcjs-highlight').forEach(el => el.classList.remove('abcjs-highlight'));
-
-            document.querySelectorAll('.lyric-highlight').forEach(el => el.classList.remove('lyric-highlight'));
-
+            runtime.isPlaying = false; runtime.isPaused = false;
+            stopMetro();
+            if(runtime.synth) { runtime.synth.stop(); runtime.synth = null; }
+            if(runtime.timing) { runtime.timing.stop(); runtime.timing = null; }
             document.querySelectorAll('.beat-dot').forEach(el => el.classList.remove('beat-active'));
-
+            document.querySelectorAll('.highlight-right, .highlight-left, .lyric-highlight').forEach(el => 
+                el.classList.remove('highlight-right', 'highlight-left', 'lyric-highlight')
+            );
         }
-
-
 
         function visualizeBeat(n) {
-
             document.querySelectorAll('.beat-dot').forEach(el => el.classList.remove('beat-active'));
-
             const dot = document.getElementById(`beat-${n}`);
-
             if(dot) dot.classList.add('beat-active');
-
         }
 
-
-
-        function toggleFingers() {
-
-            state.fingers = !state.fingers;
-
-            document.getElementById('fingering-status').innerText = state.fingers ? 'ON' : 'OFF';
-
-            renderScore();
-
+        function toggleFingers() { 
+            prefs.fingers = !prefs.fingers; 
+            document.getElementById('fingering-status').innerText = prefs.fingers ? 'ON' : 'OFF'; 
+            if(runtime.isPlaying) stopAll();
+            renderScore(); 
         }
-
-
 
         function toggleCipher() {
-
             const status = document.getElementById('cipher-status');
-
-            if (state.cipher === 'lat') { state.cipher = 'ang'; status.innerText = 'ANG'; }
-
-            else if (state.cipher === 'ang') { state.cipher = 'off'; status.innerText = 'OFF'; }
-
-            else { state.cipher = 'lat'; status.innerText = 'LAT'; }
-
+            if (prefs.cipher === 'lat') { prefs.cipher = 'ang'; status.innerText = 'ANG'; }
+            else if (prefs.cipher === 'ang') { prefs.cipher = 'off'; status.innerText = 'OFF'; }
+            else { prefs.cipher = 'lat'; status.innerText = 'LAT'; }
+            if(runtime.isPlaying) stopAll();
             renderScore();
-
         }
 
+        function openCipherGuide() {
+            document.getElementById('cipher-modal').style.display = 'flex';
+            ABCJS.renderAbc("guide-paper", "X:1\nM:4/4\nL:1/4\nK:C\nV:1 treble\nCDEF|GABc\nV:2 bass\nC,D,E,F,|G,A,B,C", { responsive: 'resize', scale: 0.8 });
+        }
 
+        function pitchToNoteName(pitch, lang='lat') {
+            if (pitch === undefined) return "";
+            const namesAng = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+            const namesLat = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+            return (lang === 'ang' ? namesAng[pitch % 12] : namesLat[pitch % 12]) + (Math.floor(pitch / 12) - 1);
+        }
 
         function showTooltip(e, pitch) {
-
-            if(!e || pitch === undefined || pitch === null) return;
-
             const tooltip = document.getElementById('note-tooltip');
-
-            const lang = (state.cipher === 'ang') ? 'ang' : 'lat';
-
-            tooltip.innerText = pitchToNoteName(pitch, lang);
-
-            tooltip.style.display = 'block'; 
-
-            const x = e.pageX || (e.touches ? e.touches[0].pageX : 0);
-
-            const y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
-
-            tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
-
+            tooltip.innerText = pitchToNoteName(pitch, prefs.cipher === 'ang' ? 'ang' : 'lat');
+            tooltip.style.display = 'block';
+            tooltip.style.left = (e.pageX || e.clientX) + 'px';
+            tooltip.style.top = (e.pageY || e.clientY) + 'px';
             setTimeout(() => tooltip.style.display = 'none', 1200);
-
         }
-
-
-
-        function showNotification(msg) {
-
-            const box = document.getElementById('notification-box');
-
-            box.innerText = msg; box.style.display = 'block';
-
-            setTimeout(() => box.style.display = 'none', 4000);
-
-        }
-
     </script>
-
 </body>
-
 </html>
